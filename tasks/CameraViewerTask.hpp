@@ -1,6 +1,8 @@
 #ifndef CAMERA_CAMERAVIEWERTASK_TASK_HPP
 #define CAMERA_CAMERAVIEWERTASK_TASK_HPP
 
+#include <highgui.h>
+#include <cv.h>
 #include "camera/CameraViewerTaskBase.hpp"
 
 
@@ -15,7 +17,7 @@ namespace camera {
     {
 	friend class CameraViewerTaskBase;
     protected:
-    
+    	RTT::ReadOnlyPointer<camera::Frame> current_frame_;
     
 
     public:
@@ -43,7 +45,7 @@ namespace camera {
          * stay in Stopped. Otherwise, it goes into Running and updateHook()
          * will be called.
          */
-        // bool startHook();
+        bool startHook();
 
         /** This hook is called by Orocos when the component is in the Running
          * state, at each activity step. Here, the activity gives the "ticks"
@@ -61,7 +63,7 @@ namespace camera {
          * called before starting it again.
          *
          */
-        // void updateHook();
+        void updateHook();
         
 
         /** This hook is called by Orocos when the component is in the

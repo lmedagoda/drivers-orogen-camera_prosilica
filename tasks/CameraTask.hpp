@@ -2,7 +2,7 @@
 #define CAMERA_CAMERATASK_TASK_HPP
 
 #include "camera/CameraTaskBase.hpp"
-
+#include "camera_prosilica_gige/CamGigEProsilica.h"
 
 namespace RTT
 {
@@ -15,9 +15,13 @@ namespace camera {
     {
 	friend class CameraTaskBase;
     protected:
-    
-    
-
+      camera::CamInterface* cam_interface_;			//handle to the camera
+      RTT::ReadOnlyPointer<camera::Frame> current_frame_;	//Orocos importer output 
+      camera::Frame bayer_frame;				//raw camera frame
+      unsigned int invalid_frames_count_;		
+      unsigned int valid_frames_count_;
+      base::Time time_save_;
+ 
     public:
         CameraTask(std::string const& name = "camera::CameraTask");
 
@@ -36,14 +40,14 @@ namespace camera {
          *     ...
          *   end
          */
-        // bool configureHook();
+        bool configureHook();
 
         /** This hook is called by Orocos when the state machine transitions
          * from Stopped to Running. If it returns false, then the component will
          * stay in Stopped. Otherwise, it goes into Running and updateHook()
          * will be called.
          */
-        // bool startHook();
+        bool startHook();
 
         /** This hook is called by Orocos when the component is in the Running
          * state, at each activity step. Here, the activity gives the "ticks"
@@ -61,7 +65,7 @@ namespace camera {
          * called before starting it again.
          *
          */
-        // void updateHook();
+        void updateHook();
         
 
         /** This hook is called by Orocos when the component is in the
@@ -75,13 +79,13 @@ namespace camera {
         /** This hook is called by Orocos when the state machine transitions
          * from Running to Stopped after stop() has been called.
          */
-        // void stopHook();
+        void stopHook();
 
         /** This hook is called by Orocos when the state machine transitions
          * from Stopped to PreOperational, requiring the call to configureHook()
          * before calling start() again.
          */
-        // void cleanupHook();
+        void cleanupHook();
     };
 }
 
