@@ -62,12 +62,13 @@ bool CameraTask::startHook()
     current_frame_.reset(frame);	
     frame = 0;
     
-    bayer_frame.init(_width,_height,8,camera::MODE_BAYER_GBRG);		
+    bayer_frame.init(_width,_height,8,camera::MODE_BAYER_GBRG);
     
     //set camera settings
     //sets binning to 1 otherwise high resolution can not be set
-    camera.setAttrib(int_attrib::BinningX,1);
-    camera.setAttrib(int_attrib::BinningY,1);
+    
+    cam_interface_->setAttrib(int_attrib::BinningX,1);
+    cam_interface_->setAttrib(int_attrib::BinningY,1);
     cam_interface_->setFrameSettings(bayer_frame);
     cam_interface_->setAttrib(camera::int_attrib::RegionX,_region_x);
     cam_interface_->setAttrib(camera::int_attrib::RegionY,_region_y);
