@@ -1,0 +1,74 @@
+name 'camera'
+
+enable_corba
+
+using_library "opencv"
+using_library "camera_prosilica_gige"
+import_types_from "base"
+import_types_from "camera_interface/frame.h"
+
+task_context 'CameraTask' do
+    needs_configuration
+   
+    output_port('index', 'int').
+        doc "index of the frame on the frame port, for statistics purposes"
+    output_port 'frame', ro_ptr('camera::Frame')
+    
+    property('camera_id', 'string','105984').
+    	doc 'unique camerea id'
+    property('width', 'int',640).
+    	doc 'width of the frame'
+    property('height', 'int',480).
+    	doc 'height of the frame'
+    property('region_x', 'int',0).
+    	doc 'start of region readout, in pixels; left edge.'
+    property('region_y', 'int',0).
+    	doc 'start of region readout, in pixels; top edge.'
+    property('trigger_mode', 'string','fixed').
+    	doc 'trigger mode of the camera, allowed values: freerun, fixed, sync_in1'
+    property('fps', 'int',30).
+    	doc 'frames per second'
+    property('exposure', 'int',5000).
+    	doc 'exposure value if exposure mode is not auto'
+    property('exposure_mode_auto', 'bool',false).
+    	doc 'exposure mode'
+    property('gain_mode_auto', 'bool',true).
+    	doc 'gain mode'
+    property('gain', 'int',0).
+    	doc 'gain value'
+    property('binning_x', 'int',1).
+    	doc 'horizontal binning. 1=no binning.'
+    property('binning_y', 'int',1).
+    	doc 'vertical binning. 1=no binning.'
+    property('output_format', 'string','rgb8').
+    	doc 'output format of the output_port frame, allowed values: bayer, rgb8, (the received camera frame is always bayer)'
+    property('log_interval_in_sec', 'int',2).
+    	doc 'interval for logging a statistic about valid and invalid frames per second (0= logging of)'
+end
+
+task_context 'CameraViewerTask' do
+#   needs_configuration
+    input_port 'frame', ro_ptr('camera::Frame')
+end
+
+task_context 'CameraWorkerTask' do
+#   needs_configuration
+    input_port 'frame', ro_ptr('camera::Frame')
+end
+
+deployment "camera" do
+    camera_task = task("camera", 'CameraTask').
+        periodic(0.01)
+    camera_viewer_task = task("camera_viewer", 'CameraViewerTask').
+        periodic(0.1)
+    camera_worker_task = task("camera_worker", 'CameraWorkerTask').
+        periodic(0.1)
+
+#   add_default_logger
+    if !corba_enabled?
+        browse camera_task
+        browse camera_viewer_task
+        browse camera_worker_task
+    end
+end
+
