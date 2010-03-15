@@ -13,29 +13,42 @@ RTT::NonPeriodicActivity* CameraTask::getNonPeriodicActivity()
 CameraTask::CameraTask(std::string const& name)
     : CameraTaskBase(name)
 {
+
 }
 
 
 bool CameraTask::configureHook()
 {
-   //convert camera_id to unsigned long
-   unsigned long camera_id;
-   std::stringstream ss(_camera_id.value());
-   ss >> camera_id;
-   
-  try
-  {
-       std::auto_ptr<camera::CamGigEProsilica> camera(new camera::CamGigEProsilica());
-       log(Info) << "open camera" << endlog();
-       camera->open2(camera_id,camera::Master);
-       cam_interface_ = camera.release();
-  }
-  catch(std::runtime_error e)
-  {
-      log(Error) << "failed to initialize camera: " << e.what() << endlog();
-      return false;
-  }
-  return true;
+    //convert camera_id to unsigned long
+    unsigned long camera_id;
+    std::stringstream ss(_camera_id.value());
+    ss >> camera_id;
+    
+    if(_mode.value() == "Master")
+	camera_acess_mode_ = Master;
+    else if (_mode.value() == "Monitor")
+        camera_acess_mode_ = Monitor;
+    else if (_mode.value() ==  "MasterMulticast")
+	camera_acess_mode_ = MasterMulticast;
+    else
+    {
+        log(Error) << "unsupported camera mode: " << _mode.value() << endlog();
+        return false;
+    }  
+
+    try
+    {
+        std::auto_ptr<camera::CamGigEProsilica> camera(new camera::CamGigEProsilica());
+        log(Info) << "open camera" << endlog();
+        camera->open2(camera_id,camera_acess_mode_);
+        cam_interface_ = camera.release();
+    }
+    catch (std::runtime_error e)
+    {
+        log(Error) << "failed to initialize camera: " << e.what() << endlog();
+        return false;
+    }
+    return true;
 }
 
 bool CameraTask::startHook()
@@ -43,74 +56,37 @@ bool CameraTask::startHook()
   invalid_frames_count_ = 0;
   valid_frames_count_ = 0;
   time_save_ = base::Time::now();
- 
+
   try 
   {
-    log(Info) << "configure camera" << endlog();
-    
-    //init camera and RTT::ReadOnlyPointer for output frame 
-    camera::Frame *frame = new camera::Frame;	
-    if(_output_format.value() == "bayer")
-	frame->init(_width,_height,8,camera::MODE_BAYER_GBRG); 
-    else if (_output_format.value() == "rgb8")
-	frame->init(_width,_height,8,camera::MODE_RGB); 
+    log(Info) << "configure camera" << endlog(); 
+    if(camera_acess_mode_!= Monitor)
+    {
+      setCameraSettings();
+    }
     else
     {
-	log(Error) << "output format "<< _output_format << " is not supported!" << endlog();
+      cam_interface_->setFrameToCameraFrameSettings(bayer_frame);
+      if(bayer_frame.frame_mode != camera::MODE_BAYER_GBRG)
+      {
+	log(Error) << "The camera frame mode is not bayer GBRG" << endlog();
+	return false;
+      }
+    }
+    
+    //init RTT::ReadOnlyPointer for output frame 
+    camera::Frame *frame = new camera::Frame;	
+    if(_output_format.value() == "bayer")
+	frame->init(bayer_frame.getWidth(),bayer_frame.getHeight(),8,camera::MODE_BAYER_GBRG); 
+    else if (_output_format.value() == "rgb8")
+        frame->init(bayer_frame.getWidth(),bayer_frame.getHeight(),8,camera::MODE_RGB); 
+    else
+    {
+        log(Error) << "output format "<< _output_format << " is not supported!" << endlog();
 	return false;
     }
     current_frame_.reset(frame);	
-    frame = 0;
-    
-    bayer_frame.init(_width,_height,8,camera::MODE_BAYER_GBRG);
-    
-    //set camera settings
-    //sets binning to 1 otherwise high resolution can not be set
-    
-    cam_interface_->setAttrib(int_attrib::BinningX,1);
-    cam_interface_->setAttrib(int_attrib::BinningY,1);
-    cam_interface_->setFrameSettings(bayer_frame);
-    cam_interface_->setAttrib(camera::int_attrib::RegionX,_region_x);
-    cam_interface_->setAttrib(camera::int_attrib::RegionY,_region_y);
-    cam_interface_->setAttrib(camera::int_attrib::BinningX,_binning_x);
-    cam_interface_->setAttrib(camera::int_attrib::BinningY,_binning_y);
-    cam_interface_->setAttrib(camera::enum_attrib::ExposureModeToManual);
-    cam_interface_->setAttrib(camera::int_attrib::ExposureValue,_exposure);
-    cam_interface_->setAttrib(camera::double_attrib::FrameRate,_fps);
-    cam_interface_->setAttrib(camera::int_attrib::GainValue,_gain);
-    if(_exposure_mode_auto)
-	cam_interface_->setAttrib(camera::enum_attrib::ExposureModeToAuto);
-    else
-	cam_interface_->setAttrib(camera::enum_attrib::ExposureModeToManual);
-    
-    if(_gain_mode_auto)
-      cam_interface_->setAttrib(camera::enum_attrib::GainModeToAuto);
-    else
-      cam_interface_->setAttrib(camera::enum_attrib::GainModeToManual);
-    
-    if(_trigger_mode.value() == "freerun")
-	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerModeToFreerun);
-    else if (_trigger_mode.value() == "fixed")
-	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerModeToFixedRate);
-    else if (_trigger_mode.value() == "sync_in1")
-	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerModeToSyncIn1);
-    else
-    {
-	log(Error) << "Trigger mode "<< _trigger_mode << " is not supported!" << endlog();
-	return false;
-    }
-    
-    log(Info) << "camera configuration: width="<<_width <<
-                                    "; height=" << _height << 
-				    "; region_x=" << _region_x << 
-				    "; region_y=" << _region_y << 
-				    "; Trigger mode=" << _trigger_mode << 
-				    "; fps=" << _fps << 
-				    "; exposure=" << _exposure << 
-				    endlog();
-    
-    log(Info) << "start grabbing" << endlog();
-    cam_interface_->grab(camera::Continuously,10); 
+    cam_interface_->grab(camera::Continuously,_frame_buffer_size); 
   }
   catch(std::runtime_error e)
   {
@@ -202,6 +178,7 @@ void CameraTask::stopHook()
 {
   log(Info) << "stop grabbing" << endlog();
   cam_interface_->grab(camera::Stop);
+  sleep(1);
 }
 
 void CameraTask::cleanupHook()
@@ -212,6 +189,54 @@ void CameraTask::cleanupHook()
     delete cam_interface_;
     cam_interface_ = NULL;
   }
+}
+
+void CameraTask::setCameraSettings()
+{
+    bayer_frame.init(_width,_height,8,camera::MODE_BAYER_GBRG);  
+    //set camera settings
+    //sets binning to 1 otherwise high resolution can not be set
+    
+    cam_interface_->setAttrib(int_attrib::BinningX,1);
+    cam_interface_->setAttrib(int_attrib::BinningY,1);
+    cam_interface_->setFrameSettings(bayer_frame);
+    cam_interface_->setAttrib(camera::int_attrib::RegionX,_region_x);
+    cam_interface_->setAttrib(camera::int_attrib::RegionY,_region_y);
+    cam_interface_->setAttrib(camera::int_attrib::BinningX,_binning_x);
+    cam_interface_->setAttrib(camera::int_attrib::BinningY,_binning_y);
+    cam_interface_->setAttrib(camera::enum_attrib::ExposureModeToManual);
+    cam_interface_->setAttrib(camera::int_attrib::ExposureValue,_exposure);
+    cam_interface_->setAttrib(camera::double_attrib::FrameRate,_fps);
+    cam_interface_->setAttrib(camera::int_attrib::GainValue,_gain);
+    if(_exposure_mode_auto)
+	cam_interface_->setAttrib(camera::enum_attrib::ExposureModeToAuto);
+    else
+	cam_interface_->setAttrib(camera::enum_attrib::ExposureModeToManual);
+    
+    if(_gain_mode_auto)
+      cam_interface_->setAttrib(camera::enum_attrib::GainModeToAuto);
+    else
+      cam_interface_->setAttrib(camera::enum_attrib::GainModeToManual);
+    
+    if(_trigger_mode.value() == "freerun")
+	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerModeToFreerun);
+    else if (_trigger_mode.value() == "fixed")
+	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerModeToFixedRate);
+    else if (_trigger_mode.value() == "sync_in1")
+	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerModeToSyncIn1);
+    else
+    {
+	throw std::runtime_error("Trigger mode "+ _trigger_mode.value() + " is not supported!");
+    }
+    
+    log(Info) << "camera configuration: width="<<_width <<
+                                    "; height=" << _height << 
+				    "; region_x=" << _region_x << 
+				    "; region_y=" << _region_y << 
+				    "; Trigger mode=" << _trigger_mode << 
+				    "; fps=" << _fps << 
+				    "; exposure=" << _exposure << 
+				    endlog();
 }
 
 // void CameraTask::errorHook()

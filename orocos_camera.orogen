@@ -44,6 +44,10 @@ task_context 'CameraTask' do
     	doc 'output format of the output_port frame, allowed values: bayer, rgb8, (the received camera frame is always bayer)'
     property('log_interval_in_sec', 'int',2).
     	doc 'interval for logging a statistic about valid and invalid frames per second (0= logging of)'
+    property('frame_buffer_size', 'int',5).
+    	doc 'size if the frame buffer'
+    property('mode', 'string','Master').
+    	doc 'opening mode (Master, Monitor, MasterMulticast)'
 end
 
 task_context 'CameraViewerTask' do
@@ -59,14 +63,17 @@ end
 deployment "camera" do
     camera_task = task("camera", 'CameraTask').
         periodic(0.01)
+    camera_task_b = task("camera_b", 'CameraTask').
+        periodic(0.01)
     camera_viewer_task = task("camera_viewer", 'CameraViewerTask').
         periodic(0.1)
     camera_worker_task = task("camera_worker", 'CameraWorkerTask').
         periodic(0.1)
 
-#   add_default_logger
+    add_default_logger
     if !corba_enabled?
         browse camera_task
+        browse camera_task_b
         browse camera_viewer_task
         browse camera_worker_task
     end

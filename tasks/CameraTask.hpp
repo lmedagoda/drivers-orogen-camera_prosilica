@@ -21,7 +21,8 @@ namespace camera {
       unsigned int invalid_frames_count_;		
       unsigned int valid_frames_count_;
       base::Time time_save_;
- 
+      AccessMode camera_acess_mode_;
+      
     public:
         CameraTask(std::string const& name = "camera::CameraTask");
 
@@ -86,6 +87,10 @@ namespace camera {
          * before calling start() again.
          */
         void cleanupHook();
+	
+      private:
+	void setCameraSettings();
+
     };
 }
 
