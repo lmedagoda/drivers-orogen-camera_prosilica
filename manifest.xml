@@ -1,5 +1,5 @@
 <package>
-  <description brief="orocos deplyoment which imports camere frames from a Prosilica GigE and dispalys them">
+  <description brief="orocos deployment which imports camere frames from a Prosilica GigE and displays them">
   </description>
   <author>Alexander Duda/Alexander.Duda@dfki.de</author>
   <license></license>
