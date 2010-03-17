@@ -9,9 +9,6 @@ import_types_from "camera_interface/frame.h"
 
 task_context 'CameraTask' do
     needs_configuration
-   
-    output_port('index', 'int').
-        doc "index of the frame on the frame port, for statistics purposes"
     output_port 'frame', ro_ptr('camera::Frame')
     
     property('camera_id', 'string','105984').
@@ -63,8 +60,8 @@ end
 deployment "camera" do
     camera_task = task("camera", 'CameraTask').
         periodic(0.01)
-    camera_task_b = task("camera_b", 'CameraTask').
-        periodic(0.01)
+#   camera_task_b = task("camera_b", 'CameraTask').
+#        periodic(0.01)
     camera_viewer_task = task("camera_viewer", 'CameraViewerTask').
         periodic(0.1)
     camera_worker_task = task("camera_worker", 'CameraWorkerTask').
@@ -73,9 +70,22 @@ deployment "camera" do
     add_default_logger
     if !corba_enabled?
         browse camera_task
-        browse camera_task_b
+#        browse camera_task_b
         browse camera_viewer_task
         browse camera_worker_task
+    end
+end
+
+deployment "camera2" do
+    camera_task_b = task("camera_b", 'CameraTask').
+        periodic(0.01)
+    camera_viewer_task = task("camera_viewer_b", 'CameraViewerTask').
+        periodic(0.1)
+   
+#    add_default_logger
+    if !corba_enabled?
+        browse camera_task_b
+        browse camera_viewer_task
     end
 end
 
