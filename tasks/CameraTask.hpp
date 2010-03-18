@@ -90,6 +90,7 @@ namespace camera {
 	
       private:
 	void setCameraSettings();
+	static void triggerFunction(const void *p);
 
     };
 }

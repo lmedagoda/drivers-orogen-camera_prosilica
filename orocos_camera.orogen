@@ -58,10 +58,9 @@ task_context 'CameraWorkerTask' do
 end
 
 deployment "camera" do
-    camera_task = task("camera", 'CameraTask').
-        periodic(0.01)
-#   camera_task_b = task("camera_b", 'CameraTask').
-#        periodic(0.01)
+    camera_task = task("camera", 'CameraTask')
+#   camera_task_b = task("camera_b", 'CameraTask')
+
     camera_viewer_task = task("camera_viewer", 'CameraViewerTask').
         periodic(0.1)
     camera_worker_task = task("camera_worker", 'CameraWorkerTask').
@@ -78,7 +77,7 @@ end
 
 deployment "camera2" do
     camera_task_b = task("camera_b", 'CameraTask').
-        periodic(0.01)
+       periodic(0.01)
     camera_viewer_task = task("camera_viewer_b", 'CameraViewerTask').
         periodic(0.1)
    

@@ -48,6 +48,8 @@ bool CameraTask::configureHook()
         log(Error) << "failed to initialize camera: " << e.what() << endlog();
         return false;
     }
+    
+    cam_interface_->setCallbackFcn(triggerFunction,this);
     return true;
 }
 
@@ -237,6 +239,11 @@ void CameraTask::setCameraSettings()
 				    "; fps=" << _fps << 
 				    "; exposure=" << _exposure << 
 				    endlog();
+}
+
+void CameraTask::triggerFunction(const void *p)
+{
+  ((RTT::TaskContext*)p)->getActivity()->trigger();
 }
 
 // void CameraTask::errorHook()
