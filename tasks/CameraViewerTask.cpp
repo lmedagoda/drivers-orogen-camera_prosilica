@@ -1,7 +1,8 @@
 #include "CameraViewerTask.hpp"
 
 #include <rtt/NonPeriodicActivity.hpp>
-
+#include <string>
+#include <sstream>
 
 using namespace camera;
 
@@ -31,14 +32,27 @@ bool CameraViewerTask::startHook()
 
 void CameraViewerTask::updateHook()
 {
-      if(_frame.read(current_frame_))
+    static int counter = 0; 
+    std::stringstream strstr;
+    std::string path;
+    path = "/home/marc/temp/image";
+    strstr << _ident;
+    path +=  strstr.str();
+    strstr << counter;
+    path += ".png";
+    
+    if(_frame.read(current_frame_))
+    {
+      if(current_frame_->getStatus() == camera::STATUS_VALID)
       {
- 	if(current_frame_->getStatus() == camera::STATUS_VALID)
- 	  cv::imshow("image",current_frame_->convertToCvMat());
- 	else
- 	  RTT::log(RTT::Warning) << "invalid frame" << RTT::endlog();
- 	cv::waitKey(2);
+	cv::imshow("image",current_frame_->convertToCvMat());
+	cv::imwrite(path.c_str(),current_frame_->convertToCvMat());
       }
+      else
+	RTT::log(RTT::Warning) << "invalid frame" << RTT::endlog();
+      cv::waitKey(2);
+    }
+    counter++;
 }
 
 

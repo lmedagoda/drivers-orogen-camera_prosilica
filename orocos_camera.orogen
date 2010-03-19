@@ -50,6 +50,8 @@ end
 task_context 'CameraViewerTask' do
 #   needs_configuration
     input_port 'frame', ro_ptr('camera::Frame')
+    property('ident', 'int',0).
+    	doc 'gain value'
 end
 
 task_context 'CameraWorkerTask' do
