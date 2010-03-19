@@ -52,8 +52,8 @@ void CameraViewerTask::updateHook()
       else
 	RTT::log(RTT::Warning) << "invalid frame" << RTT::endlog();
       cv::waitKey(2);
+      counter++;
     }
-    counter++;
 }
 
 
