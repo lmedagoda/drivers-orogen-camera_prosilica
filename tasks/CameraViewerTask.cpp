@@ -35,12 +35,8 @@ void CameraViewerTask::updateHook()
     static int counter = 0; 
     std::stringstream strstr;
     std::string path;
-    path = "/home/marc/temp/image";
-    strstr << _ident;
-    path +=  strstr.str();
-    strstr << counter;
-    path +=  "--" + strstr.str();
-    path += ".png";
+    strstr << "/home/marc/temp/image" << _ident << "--" << counter << ".png";
+    path = strstr.str();
     
     if(_frame.read(current_frame_))
     {
