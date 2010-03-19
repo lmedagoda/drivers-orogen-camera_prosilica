@@ -17,7 +17,7 @@ namespace camera {
     protected:
       camera::CamInterface* cam_interface_;			//handle to the camera
       RTT::ReadOnlyPointer<camera::Frame> current_frame_;	//Orocos importer output 
-      camera::Frame bayer_frame;				//raw camera frame
+      camera::Frame camera_frame;				//raw camera frame
       unsigned int invalid_frames_count_;		
       unsigned int valid_frames_count_;
       base::Time time_save_;

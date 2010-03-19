@@ -62,31 +62,43 @@ bool CameraTask::startHook()
   try 
   {
     log(Info) << "configure camera" << endlog(); 
+   
+     //define CamInterface output frame
+    camera::Frame *frame = new camera::Frame;	
     if(camera_acess_mode_!= Monitor)
     {
+      if(_output_format.value() == "bayer")
+	 camera_frame.init(_width,_height,8,camera::MODE_BAYER_GBRG);    
+      else if (_output_format.value() == "rgb8")
+	 camera_frame.init(_width,_height,8,camera::MODE_BAYER_GBRG);  
+      else if (_output_format.value() == "mono8")
+	 camera_frame.init(_width,_height,8,camera::MODE_GRAYSCALE);  
+      else
+      {
+	  log(Error) << "output format "<< _output_format << " is not supported!" << endlog();
+	  return false;
+      }
       setCameraSettings();
     }
     else
     {
-      cam_interface_->setFrameToCameraFrameSettings(bayer_frame);
-      if(bayer_frame.frame_mode != camera::MODE_BAYER_GBRG)
-      {
-	log(Error) << "The camera frame mode is not bayer GBRG" << endlog();
+      cam_interface_->setFrameToCameraFrameSettings(camera_frame);
+    }
+    
+    //define orocos_camera output frame
+    if(_output_format.value() == "bayer")
+	frame->init(camera_frame.getWidth(),camera_frame.getHeight(),8,camera::MODE_BAYER_GBRG); 
+    else if (_output_format.value() == "rgb8")
+	frame->init(camera_frame.getWidth(),camera_frame.getHeight(),8,camera::MODE_RGB);
+    else if (_output_format.value() == "mono8")
+	frame->init(camera_frame.getWidth(),camera_frame.getHeight(),8,camera::MODE_GRAYSCALE);  
+    else
+    {
+	log(Error) << "output format "<< _output_format << " is not supported!" << endlog();
 	return false;
-      }
     }
     
     //init RTT::ReadOnlyPointer for output frame 
-    camera::Frame *frame = new camera::Frame;	
-    if(_output_format.value() == "bayer")
-	frame->init(bayer_frame.getWidth(),bayer_frame.getHeight(),8,camera::MODE_BAYER_GBRG); 
-    else if (_output_format.value() == "rgb8")
-        frame->init(bayer_frame.getWidth(),bayer_frame.getHeight(),8,camera::MODE_RGB); 
-    else
-    {
-        log(Error) << "output format "<< _output_format << " is not supported!" << endlog();
-	return false;
-    }
     current_frame_.reset(frame);	
     cam_interface_->grab(camera::Continuously,_frame_buffer_size); 
   }
@@ -106,12 +118,13 @@ void CameraTask::updateHook()
     {
        switch(current_frame_->frame_mode)
        {
+	 //debayering has to be performed
 	 case camera::MODE_RGB:
-	   cam_interface_->retrieveFrame(bayer_frame);
-	   if (bayer_frame.getStatus() == camera::STATUS_VALID)
+	   cam_interface_->retrieveFrame(camera_frame);
+	   if (camera_frame.getStatus() == camera::STATUS_VALID)
 	   {
 	     camera::Frame *frame_ptr = current_frame_.write_access();
-	     camera::Helper::convertColor(bayer_frame,*frame_ptr,camera::MODE_RGB);
+	     camera::Helper::convertColor(camera_frame,*frame_ptr,camera::MODE_RGB);
 	     current_frame_.reset(frame_ptr);
 	     _frame.write(current_frame_);
 	     valid_frames_count_++;
@@ -121,6 +134,8 @@ void CameraTask::updateHook()
 	     invalid_frames_count_++;
 	   }
 	   break;
+	 //no debayering
+	 case camera::MODE_GRAYSCALE:
 	 case camera::MODE_BAYER_GBRG:
 	 {
 	   camera::Frame *frame_ptr = current_frame_.write_access();
@@ -195,13 +210,12 @@ void CameraTask::cleanupHook()
 
 void CameraTask::setCameraSettings()
 {
-    bayer_frame.init(_width,_height,8,camera::MODE_BAYER_GBRG);  
     //set camera settings
     //sets binning to 1 otherwise high resolution can not be set
     
     cam_interface_->setAttrib(int_attrib::BinningX,1);
     cam_interface_->setAttrib(int_attrib::BinningY,1);
-    cam_interface_->setFrameSettings(bayer_frame);
+    cam_interface_->setFrameSettings(camera_frame);
     cam_interface_->setAttrib(camera::int_attrib::RegionX,_region_x);
     cam_interface_->setAttrib(camera::int_attrib::RegionY,_region_y);
     cam_interface_->setAttrib(camera::int_attrib::BinningX,_binning_x);
