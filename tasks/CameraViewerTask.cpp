@@ -39,6 +39,7 @@ void CameraViewerTask::updateHook()
     strstr << _ident;
     path +=  strstr.str();
     strstr << counter;
+    path +=  "--" + strstr.str();
     path += ".png";
     
     if(_frame.read(current_frame_))
