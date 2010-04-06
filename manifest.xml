@@ -6,7 +6,7 @@
   <url>http://</url>
   <logo>http://</logo>
   <depend package="base" />
-  <depend package="/drivers/camera_prosilica_gige"/>
+  <depend package="drivers/camera_prosilica_gige"/>
   <versioncontrol type="git" url="" />
   <export>
     <cpp cflags="" lflags="" />
