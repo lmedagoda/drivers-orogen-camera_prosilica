@@ -45,7 +45,8 @@ task_context 'CameraTask' do
     	doc 'size if the frame buffer'
     property('mode', 'string','Master').
     	doc 'opening mode (Master, Monitor, MasterMulticast)'
-    
+    property('synchronize_time_interval', 'int',0).
+    	doc 'time interval in micro seconds which is used to synchronize camera time with system time. 0 == no synchronization'
     property('whitebalance_mode', 'string','auto').
     	doc 'whitebalance mode (auto, manual, auto_once)'
     property('whitebalance_blue', 'int',100).

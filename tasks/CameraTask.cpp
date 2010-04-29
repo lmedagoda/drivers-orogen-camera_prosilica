@@ -48,7 +48,9 @@ bool CameraTask::configureHook()
         return false;
     }
     
-    cam_interface_->synchronizeWithSystemTime(2000000); // use two sec to synchronize
+    //synchronize with camera time with system time
+    if(_synchronize_time_interval)
+      cam_interface_->synchronizeWithSystemTime(_synchronize_time_interval); 
     cam_interface_->setCallbackFcn(triggerFunction,this);
     return true;
 }
