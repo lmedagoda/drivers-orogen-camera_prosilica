@@ -16,7 +16,6 @@ CameraTask::CameraTask(std::string const& name)
 
 }
 
-
 bool CameraTask::configureHook()
 {
     //convert camera_id to unsigned long
@@ -49,6 +48,7 @@ bool CameraTask::configureHook()
         return false;
     }
     
+    cam_interface_->synchronizeWithSystemTime(2000000); // use two sec to synchronize
     cam_interface_->setCallbackFcn(triggerFunction,this);
     return true;
 }
@@ -100,6 +100,7 @@ bool CameraTask::startHook()
     
     //init RTT::ReadOnlyPointer for output frame 
     current_frame_.reset(frame);	
+    frame = NULL;
     cam_interface_->grab(camera::Continuously,_frame_buffer_size); 
   }
   catch(std::runtime_error e)
@@ -142,6 +143,7 @@ void CameraTask::updateHook()
 	   cam_interface_->retrieveFrame(*frame_ptr);
 	   if (frame_ptr->getStatus() == camera::STATUS_VALID)
 	   {
+	     std::cout << "camera " << _camera_id <<" frame timestamp:" << frame_ptr->time << std::endl;
 	     current_frame_.reset(frame_ptr);
 	     _frame.write(current_frame_);
 	     valid_frames_count_++;
@@ -164,7 +166,7 @@ void CameraTask::updateHook()
     }
   }
   
-  //check if statistic shall be logged now
+  //check if statistic shall be displayed
   if(_log_interval_in_sec)
   {
     base::Time time = base::Time::now();
@@ -224,6 +226,22 @@ void CameraTask::setCameraSettings()
     cam_interface_->setAttrib(camera::int_attrib::ExposureValue,_exposure);
     cam_interface_->setAttrib(camera::double_attrib::FrameRate,_fps);
     cam_interface_->setAttrib(camera::int_attrib::GainValue,_gain);
+    cam_interface_->setAttrib(camera::int_attrib::WhitebalValueBlue,_whitebalance_blue);
+    cam_interface_->setAttrib(camera::int_attrib::WhitebalValueRed,_whitebalance_red);
+    cam_interface_->setAttrib(camera::int_attrib::WhitebalAutoRate,_whitebalance_auto_rate);
+    cam_interface_->setAttrib(camera::int_attrib::WhitebalAutoAdjustTol,_whitebalance_auto_threshold);
+    
+    if(_whitebalance_mode.value() == "manual")
+	cam_interface_->setAttrib(camera::enum_attrib::WhitebalModeToManual);
+    else if (_whitebalance_mode.value() == "auto")
+	cam_interface_->setAttrib(camera::enum_attrib::WhitebalModeToAuto);
+    else if (_whitebalance_mode.value() == "auto_once")
+	cam_interface_->setAttrib(camera::enum_attrib::WhitebalModeToAutoOnce);
+    else
+    {
+	throw std::runtime_error("Whitebalance mode "+ _whitebalance_mode.value() + " is not supported!");
+    }
+    
     if(_exposure_mode_auto)
 	cam_interface_->setAttrib(camera::enum_attrib::ExposureModeToAuto);
     else
@@ -252,6 +270,7 @@ void CameraTask::setCameraSettings()
 				    "; Trigger mode=" << _trigger_mode << 
 				    "; fps=" << _fps << 
 				    "; exposure=" << _exposure << 
+				    "; Whitebalance mode=" << _whitebalance_mode << 
 				    endlog();
 }
 

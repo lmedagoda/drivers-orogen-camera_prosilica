@@ -43,7 +43,7 @@ void CameraViewerTask::updateHook()
       if(current_frame_->getStatus() == camera::STATUS_VALID)
       {
 	cv::imshow("image",current_frame_->convertToCvMat());
-	cv::imwrite(path.c_str(),current_frame_->convertToCvMat());
+//	cv::imwrite(path.c_str(),current_frame_->convertToCvMat());
       }
       else
 	RTT::log(RTT::Warning) << "invalid frame" << RTT::endlog();

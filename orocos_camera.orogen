@@ -45,6 +45,17 @@ task_context 'CameraTask' do
     	doc 'size if the frame buffer'
     property('mode', 'string','Master').
     	doc 'opening mode (Master, Monitor, MasterMulticast)'
+    
+    property('whitebalance_mode', 'string','auto').
+    	doc 'whitebalance mode (auto, manual, auto_once)'
+    property('whitebalance_blue', 'int',100).
+    	doc 'Blue gain expressed as a percentage of the camera default setting.'
+    property('whitebalance_red', 'int',100).
+    	doc 'Red gain expressed as a percentage of the camera default setting.'   
+    property('whitebalance_auto_rate', 'int',100).
+    	doc 'How fast the Auto white balance will update.'
+    property('whitebalance_auto_threshold', 'int',5).
+    	doc 'Sets a range of scene color changes in which the automatic whitebalance will not respond.'
 end
 
 task_context 'CameraViewerTask' do
@@ -61,31 +72,32 @@ end
 
 deployment "camera" do
     camera_task = task("camera", 'CameraTask')
-#   camera_task_b = task("camera_b", 'CameraTask')
-
     camera_viewer_task = task("camera_viewer", 'CameraViewerTask').
-        periodic(1)
+        periodic(0.05)
     camera_worker_task = task("camera_worker", 'CameraWorkerTask').
         periodic(0.1)
 
     add_default_logger
     if !corba_enabled?
         browse camera_task
-#        browse camera_task_b
         browse camera_viewer_task
         browse camera_worker_task
     end
 end
 
-deployment "camera2" do
+deployment "camera_b" do
+    camera_task_a = task("camera_a", 'CameraTask')
     camera_task_b = task("camera_b", 'CameraTask')
-    camera_viewer_task = task("camera_viewer_b", 'CameraViewerTask').
-        periodic(1)
-   
-#    add_default_logger
+    camera_viewer_task_a = task("camera_viewer_a", 'CameraViewerTask').
+        periodic(0.03)
+    camera_viewer_task_b = task("camera_viewer_b", 'CameraViewerTask').
+        periodic(0.03)   
+    add_default_logger
     if !corba_enabled?
+        browse camera_task_a
+        browse camera_viewer_task_a
         browse camera_task_b
-        browse camera_viewer_task
+        browse camera_viewer_task_b
     end
 end
 
