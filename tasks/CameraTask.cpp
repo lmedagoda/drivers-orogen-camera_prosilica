@@ -147,7 +147,7 @@ void CameraTask::updateHook()
 	   cam_interface_->retrieveFrame(*frame_ptr);
 	   if (frame_ptr->getStatus() == camera::STATUS_VALID)
 	   {
-	     std::cout << "camera " << _camera_id <<" frame timestamp:" << frame_ptr->time << std::endl;
+	    // std::cout << "camera " << _camera_id <<" frame timestamp:" << frame_ptr->time << std::endl;
 	     current_frame_.reset(frame_ptr);
 	     _frame.write(current_frame_);
 	     valid_frames_count_++;
