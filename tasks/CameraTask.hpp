@@ -16,8 +16,8 @@ namespace camera {
 	friend class CameraTaskBase;
     protected:
       camera::CamInterface* cam_interface_;			//handle to the camera
-      RTT::ReadOnlyPointer<camera::Frame> current_frame_;	//Orocos importer output 
-      camera::Frame camera_frame;				//raw camera frame
+      RTT::ReadOnlyPointer<base::samples::frame::Frame> current_frame_;	//Orocos importer output 
+      base::samples::frame::Frame camera_frame;				//raw camera frame
       unsigned int invalid_frames_count_;		
       unsigned int valid_frames_count_;
       base::Time time_save_;

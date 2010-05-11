@@ -5,7 +5,7 @@
 #include <sstream>
 
 using namespace camera;
-
+using namespace base::samples::frame;
 
 RTT::NonPeriodicActivity* CameraViewerTask::getNonPeriodicActivity()
 { return dynamic_cast< RTT::NonPeriodicActivity* >(getActivity().get()); }
@@ -40,7 +40,7 @@ void CameraViewerTask::updateHook()
     
     if(_frame.read(current_frame_))
     {
-      if(current_frame_->getStatus() == camera::STATUS_VALID)
+      if(current_frame_->getStatus() == STATUS_VALID)
       {
 	cv::imshow("image",current_frame_->convertToCvMat());
 //	cv::imwrite(path.c_str(),current_frame_->convertToCvMat());

@@ -4,6 +4,7 @@
 
 
 using namespace camera;
+using namespace base::samples::frame;
 using namespace RTT;
 
 RTT::NonPeriodicActivity* CameraTask::getNonPeriodicActivity()
@@ -68,15 +69,15 @@ bool CameraTask::startHook()
     log(Info) << "configure camera" << endlog(); 
    
      //define CamInterface output frame
-    camera::Frame *frame = new camera::Frame;	
+    Frame *frame = new Frame;	
     if(camera_acess_mode_!= Monitor)
     {
       if(_output_format.value() == "bayer")
-	 camera_frame.init(_width,_height,8,camera::MODE_BAYER_GBRG);    
+	 camera_frame.init(_width,_height,8,MODE_BAYER_GBRG);    
       else if (_output_format.value() == "rgb8")
-	 camera_frame.init(_width,_height,8,camera::MODE_BAYER_GBRG);  
+	 camera_frame.init(_width,_height,8,MODE_BAYER_GBRG);  
       else if (_output_format.value() == "mono8")
-	 camera_frame.init(_width,_height,8,camera::MODE_GRAYSCALE);  
+	 camera_frame.init(_width,_height,8,MODE_GRAYSCALE);  
       else
       {
 	  log(Error) << "output format "<< _output_format << " is not supported!" << endlog();
@@ -91,11 +92,11 @@ bool CameraTask::startHook()
     
     //define orocos_camera output frame
     if(_output_format.value() == "bayer")
-	frame->init(camera_frame.getWidth(),camera_frame.getHeight(),8,camera::MODE_BAYER_GBRG); 
+	frame->init(camera_frame.getWidth(),camera_frame.getHeight(),8,MODE_BAYER_GBRG); 
     else if (_output_format.value() == "rgb8")
-	frame->init(camera_frame.getWidth(),camera_frame.getHeight(),8,camera::MODE_RGB);
+	frame->init(camera_frame.getWidth(),camera_frame.getHeight(),8,MODE_RGB);
     else if (_output_format.value() == "mono8")
-	frame->init(camera_frame.getWidth(),camera_frame.getHeight(),8,camera::MODE_GRAYSCALE);  
+	frame->init(camera_frame.getWidth(),camera_frame.getHeight(),8,MODE_GRAYSCALE);  
     else
     {
 	log(Error) << "output format "<< _output_format << " is not supported!" << endlog();
@@ -124,12 +125,12 @@ void CameraTask::updateHook()
        switch(current_frame_->frame_mode)
        {
 	 //debayering has to be performed
-	 case camera::MODE_RGB:
+	 case MODE_RGB:
 	   cam_interface_->retrieveFrame(camera_frame);
-	   if (camera_frame.getStatus() == camera::STATUS_VALID)
+	   if (camera_frame.getStatus() == STATUS_VALID)
 	   {
-	     camera::Frame *frame_ptr = current_frame_.write_access();
-	     camera::Helper::convertColor(camera_frame,*frame_ptr,camera::MODE_RGB);
+	     Frame *frame_ptr = current_frame_.write_access();
+	     Helper::convertColor(camera_frame,*frame_ptr,MODE_RGB);
 	     current_frame_.reset(frame_ptr);
 	     _frame.write(current_frame_);
 	     valid_frames_count_++;
@@ -140,12 +141,12 @@ void CameraTask::updateHook()
 	   }
 	   break;
 	 //no debayering
-	 case camera::MODE_GRAYSCALE:
-	 case camera::MODE_BAYER_GBRG:
+	 case MODE_GRAYSCALE:
+	 case MODE_BAYER_GBRG:
 	 {
-	   camera::Frame *frame_ptr = current_frame_.write_access();
+	   Frame *frame_ptr = current_frame_.write_access();
 	   cam_interface_->retrieveFrame(*frame_ptr);
-	   if (frame_ptr->getStatus() == camera::STATUS_VALID)
+	   if (frame_ptr->getStatus() == STATUS_VALID)
 	   {
 	    // std::cout << "camera " << _camera_id <<" frame timestamp:" << frame_ptr->time << std::endl;
 	     current_frame_.reset(frame_ptr);

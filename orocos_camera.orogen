@@ -4,12 +4,11 @@ enable_corba
 
 using_library "opencv"
 using_library "camera_prosilica_gige"
-import_types_from "base"
-import_types_from "camera_interface/frame.h"
+import_types_from "base/samples/frame.h"
 
 task_context 'CameraTask' do
     needs_configuration
-    output_port 'frame', ro_ptr('camera::Frame')
+    output_port 'frame', ro_ptr('base::samples::frame::Frame')
     
     property('camera_id', 'string','105984').
     	doc 'unique camerea id'
@@ -61,14 +60,14 @@ end
 
 task_context 'CameraViewerTask' do
 #   needs_configuration
-    input_port 'frame', ro_ptr('camera::Frame')
+    input_port 'frame', ro_ptr('base::samples::frame::Frame')
     property('ident', 'int',0).
     	doc 'gain value'
 end
 
 task_context 'CameraWorkerTask' do
 #   needs_configuration
-    input_port 'frame', ro_ptr('camera::Frame')
+    input_port 'frame', ro_ptr('base::samples::frame::Frame')
 end
 
 deployment "camera" do

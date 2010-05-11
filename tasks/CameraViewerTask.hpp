@@ -17,7 +17,7 @@ namespace camera {
     {
 	friend class CameraViewerTaskBase;
     protected:
-    	RTT::ReadOnlyPointer<camera::Frame> current_frame_;
+    	RTT::ReadOnlyPointer<base::samples::frame::Frame> current_frame_;
     
 
     public:
