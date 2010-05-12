@@ -1,8 +1,6 @@
 name 'camera'
 
 enable_corba
-
-using_library "opencv"
 using_library "camera_prosilica_gige"
 import_types_from "base/samples/frame.h"
 
@@ -58,46 +56,12 @@ task_context 'CameraTask' do
     	doc 'Sets a range of scene color changes in which the automatic whitebalance will not respond.'
 end
 
-task_context 'CameraViewerTask' do
-#   needs_configuration
-    input_port 'frame', ro_ptr('base::samples::frame::Frame')
-    property('ident', 'int',0).
-    	doc 'gain value'
-end
-
-task_context 'CameraWorkerTask' do
-#   needs_configuration
-    input_port 'frame', ro_ptr('base::samples::frame::Frame')
-end
-
-deployment "camera" do
-    camera_task = task("camera", 'CameraTask')
-    camera_viewer_task = task("camera_viewer", 'CameraViewerTask').
-        periodic(0.05)
-    camera_worker_task = task("camera_worker", 'CameraWorkerTask').
-        periodic(0.1)
-
-    add_default_logger
-    if !corba_enabled?
-        browse camera_task
-        browse camera_viewer_task
-        browse camera_worker_task
-    end
-end
-
-deployment "camera_b" do
-    camera_task_a = task("camera_a", 'CameraTask')
-    camera_task_b = task("camera_b", 'CameraTask')
-    camera_viewer_task_a = task("camera_viewer_a", 'CameraViewerTask').
-        periodic(0.03)
-    camera_viewer_task_b = task("camera_viewer_b", 'CameraViewerTask').
-        periodic(0.03)   
-    add_default_logger
-    if !corba_enabled?
-        browse camera_task_a
-        browse camera_viewer_task_a
-        browse camera_task_b
-        browse camera_viewer_task_b
-    end
-end
+# use deployment camera_viewer which is defined in orocos_frame_viewer if you want to test the camrea task
+# deployment "camera" do
+#    camera_task = task("camera", 'CameraTask')
+#    add_default_logger
+#    if !corba_enabled?
+#        browse camera_task
+#    end
+# end
 
