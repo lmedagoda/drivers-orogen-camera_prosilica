@@ -56,12 +56,12 @@ task_context 'CameraTask' do
     	doc 'Sets a range of scene color changes in which the automatic whitebalance will not respond.'
 end
 
-# use deployment camera_viewer which is defined in orocos_frame_viewer if you want to test the camrea task
-# deployment "camera" do
-#    camera_task = task("camera", 'CameraTask')
-#    add_default_logger
-#    if !corba_enabled?
-#        browse camera_task
-#    end
-# end
+#use deployment camera_viewer which is defined in orocos_frame_viewer if you want to test the camera task
+deployment "camera" do
+    camera_task = task("camera", 'CameraTask')
+    add_default_logger
+    if !corba_enabled?
+       browse camera_task
+    end
+end
 
