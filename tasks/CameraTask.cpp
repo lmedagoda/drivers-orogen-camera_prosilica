@@ -268,6 +268,21 @@ void CameraTask::setCameraSettings()
 	throw std::runtime_error("Trigger mode "+ _trigger_mode.value() + " is not supported!");
     }
     
+    if(_frame_start_trigger_event.value() == "EdgeRising")
+	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToEdgeRising);
+    else if (_trigger_mode.value() == "EdgeFalling")
+	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToEdgeFalling);
+    else if (_trigger_mode.value() == "EdgeAny")
+	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToEdgeAny);
+    else if (_trigger_mode.value() == "LevelHigh")
+	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToLevelHigh);
+    else if (_trigger_mode.value() == "LevelLow")
+	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToLevelLow);
+    else
+    {
+	throw std::runtime_error("Frame start trigger event "+ _trigger_mode.value() + " is not supported!");
+    }
+    
     log(Info) << "camera configuration: width="<<_width <<
                                     "; height=" << _height << 
 				    "; region_x=" << _region_x << 

@@ -54,6 +54,8 @@ task_context 'CameraTask' do
     	doc 'How fast the Auto white balance will update.'
     property('whitebalance_auto_threshold', 'int',5).
     	doc 'Sets a range of scene color changes in which the automatic whitebalance will not respond.'
+    property('frame_start_trigger_event', 'string','EdgeRising').
+    	doc 'External trigger event, allowed values:  EdgeRising, EdgeFalling, EdgeAny, LevelHigh, LevelLow'
 end
 
 #use deployment camera_viewer which is defined in orocos_frame_viewer if you want to test the camera task
