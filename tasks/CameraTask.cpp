@@ -247,15 +247,16 @@ void CameraTask::setCameraSettings()
 	throw std::runtime_error("Whitebalance mode "+ _whitebalance_mode.value() + " is not supported!");
     }
     
-    if(_exposure_mode_auto)
+    if(_exposure_mode.value() == "auto")
 	cam_interface_->setAttrib(camera::enum_attrib::ExposureModeToAuto);
-    else
+    else if(_exposure_mode.value() =="manual")
 	cam_interface_->setAttrib(camera::enum_attrib::ExposureModeToManual);
-    
-    if(_gain_mode_auto)
-      cam_interface_->setAttrib(camera::enum_attrib::GainModeToAuto);
+    else if (_exposure_mode.value() =="external")
+	cam_interface_->setAttrib(camera::enum_attrib::ExposureModeToExternal);
     else
-      cam_interface_->setAttrib(camera::enum_attrib::GainModeToManual);
+    {
+	throw std::runtime_error("Exposure mode "+ _exposure_mode.value() + " is not supported!");
+    }
     
     if(_trigger_mode.value() == "freerun")
 	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerModeToFreerun);
