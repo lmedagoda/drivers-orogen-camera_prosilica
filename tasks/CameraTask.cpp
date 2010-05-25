@@ -281,7 +281,7 @@ void CameraTask::setCameraSettings()
 	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToLevelLow);
     else
     {
-	throw std::runtime_error("Frame start trigger event "+ _trigger_mode.value() + " is not supported!");
+	throw std::runtime_error("Frame start trigger event "+ _frame_start_trigger_event.value() + " is not supported!");
     }
     
     log(Info) << "camera configuration: width="<<_width <<
