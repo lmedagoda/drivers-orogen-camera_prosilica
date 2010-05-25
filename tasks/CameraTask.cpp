@@ -271,13 +271,13 @@ void CameraTask::setCameraSettings()
     
     if(_frame_start_trigger_event.value() == "EdgeRising")
 	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToEdgeRising);
-    else if (_trigger_mode.value() == "EdgeFalling")
+    else if (_frame_start_trigger_event.value() == "EdgeFalling")
 	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToEdgeFalling);
-    else if (_trigger_mode.value() == "EdgeAny")
+    else if (_frame_start_trigger_event.value() == "EdgeAny")
 	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToEdgeAny);
-    else if (_trigger_mode.value() == "LevelHigh")
+    else if (_frame_start_trigger_event.value() == "LevelHigh")
 	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToLevelHigh);
-    else if (_trigger_mode.value() == "LevelLow")
+    else if (_frame_start_trigger_event.value() == "LevelLow")
 	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToLevelLow);
     else
     {
