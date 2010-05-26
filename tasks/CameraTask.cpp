@@ -50,8 +50,8 @@ bool CameraTask::configureHook()
     }
     
     //synchronize camera time with system time
-    if(_synchronize_time_interval)
-      cam_interface_->synchronizeWithSystemTime(_synchronize_time_interval); 
+    //if(_synchronize_time_interval)
+    //  cam_interface_->synchronizeWithSystemTime(_synchronize_time_interval); 
     
     //set callback fcn
     cam_interface_->setCallbackFcn(triggerFunction,this);
@@ -106,6 +106,8 @@ bool CameraTask::startHook()
     //init RTT::ReadOnlyPointer for output frame 
     current_frame_.reset(frame);	
     frame = NULL;
+    
+    log(Info) << cam_interface_->doDiagnose() << endlog();
     cam_interface_->grab(camera::Continuously,_frame_buffer_size); 
   }
   catch(std::runtime_error e)
@@ -215,70 +217,212 @@ void CameraTask::cleanupHook()
   }
 }
 
+ //set camera settings
 void CameraTask::setCameraSettings()
 {
-    //set camera settings
     //sets binning to 1 otherwise high resolution can not be set
+    if(cam_interface_->isAttribAvail(int_attrib::BinningX))
+    {
+      cam_interface_->setAttrib(int_attrib::BinningX,1);
+      cam_interface_->setAttrib(int_attrib::BinningY,1);
+    }
+    else
+      log(Warning) << "Binning is not supported by the camera" << endlog();
     
-    cam_interface_->setAttrib(int_attrib::BinningX,1);
-    cam_interface_->setAttrib(int_attrib::BinningY,1);
+    //setting resolution and color mode
     cam_interface_->setFrameSettings(camera_frame);
-    cam_interface_->setAttrib(camera::int_attrib::RegionX,_region_x);
-    cam_interface_->setAttrib(camera::int_attrib::RegionY,_region_y);
-    cam_interface_->setAttrib(camera::int_attrib::BinningX,_binning_x);
-    cam_interface_->setAttrib(camera::int_attrib::BinningY,_binning_y);
-    cam_interface_->setAttrib(camera::enum_attrib::ExposureModeToManual);
-    cam_interface_->setAttrib(camera::int_attrib::ExposureValue,_exposure);
-    cam_interface_->setAttrib(camera::double_attrib::FrameRate,_fps);
-    cam_interface_->setAttrib(camera::int_attrib::GainValue,_gain);
-    cam_interface_->setAttrib(camera::int_attrib::WhitebalValueBlue,_whitebalance_blue);
-    cam_interface_->setAttrib(camera::int_attrib::WhitebalValueRed,_whitebalance_red);
-    cam_interface_->setAttrib(camera::int_attrib::WhitebalAutoRate,_whitebalance_auto_rate);
-    cam_interface_->setAttrib(camera::int_attrib::WhitebalAutoAdjustTol,_whitebalance_auto_threshold);
     
+    //setting Region
+    if(cam_interface_->isAttribAvail(int_attrib::RegionX))
+    {
+      cam_interface_->setAttrib(camera::int_attrib::RegionX,_region_x);
+      cam_interface_->setAttrib(camera::int_attrib::RegionY,_region_y);
+    }
+    else
+      log(Warning) << "Region is not supported by the camera" << endlog();
+    
+    //setting Binning
+    if(cam_interface_->isAttribAvail(int_attrib::BinningX))
+    {
+      cam_interface_->setAttrib(camera::int_attrib::BinningX,_binning_x);
+      cam_interface_->setAttrib(camera::int_attrib::BinningY,_binning_y);
+    }
+    
+    //setting ExposureValue
+    if(cam_interface_->isAttribAvail(int_attrib::ExposureValue))
+      cam_interface_->setAttrib(camera::int_attrib::ExposureValue,_exposure);
+    else
+      log(Warning) << "ExposureValue is not supported by the camera" << endlog();
+    
+    //setting FrameRate
+    if(cam_interface_->isAttribAvail(double_attrib::FrameRate))
+      cam_interface_->setAttrib(camera::double_attrib::FrameRate,_fps);
+    else
+      log(Warning) << "FrameRate is not supported by the camera" << endlog();
+    
+    //setting GainValue
+    if(cam_interface_->isAttribAvail(int_attrib::GainValue))
+      cam_interface_->setAttrib(camera::int_attrib::GainValue,_gain);
+    else
+      log(Warning) << "GainValue is not supported by the camera" << endlog();
+    
+     //setting WhitebalValueBlue
+    if(cam_interface_->isAttribAvail(int_attrib::WhitebalValueBlue))
+      cam_interface_->setAttrib(camera::int_attrib::WhitebalValueBlue,_whitebalance_blue);
+    else
+      log(Warning) << "WhitebalValueBlue is not supported by the camera" << endlog();
+    
+    //setting WhitebalValueRed
+    if(cam_interface_->isAttribAvail(int_attrib::WhitebalValueRed))
+      cam_interface_->setAttrib(camera::int_attrib::WhitebalValueRed,_whitebalance_red);
+    else
+      log(Warning) << "WhitebalValueRed is not supported by the camera" << endlog();
+    
+    //setting WhitebalAutoRate
+    if(cam_interface_->isAttribAvail(int_attrib::WhitebalAutoRate))
+      cam_interface_->setAttrib(camera::int_attrib::WhitebalAutoRate,_whitebalance_auto_rate);
+    else
+      log(Warning) << "WhitebalAutoRate is not supported by the camera" << endlog();
+    
+    //setting WhitebalAutoAdjustTol
+    if(cam_interface_->isAttribAvail(int_attrib::WhitebalAutoAdjustTol))
+      cam_interface_->setAttrib(camera::int_attrib::WhitebalAutoAdjustTol,_whitebalance_auto_threshold);
+    else
+      log(Warning) << "WhitebalAutoAdjustTol is not supported by the camera" << endlog();
+    
+    //setting _whitebalance_mode
     if(_whitebalance_mode.value() == "manual")
-	cam_interface_->setAttrib(camera::enum_attrib::WhitebalModeToManual);
+    {
+	if(cam_interface_->isAttribAvail(camera::enum_attrib::WhitebalModeToManual))
+	  cam_interface_->setAttrib(camera::enum_attrib::WhitebalModeToManual);
+	else
+	  log(Warning) << "WhitebalModeToManual is not supported by the camera" << endlog();
+    }
     else if (_whitebalance_mode.value() == "auto")
-	cam_interface_->setAttrib(camera::enum_attrib::WhitebalModeToAuto);
+    {
+	if(cam_interface_->isAttribAvail(camera::enum_attrib::WhitebalModeToAuto))
+	  cam_interface_->setAttrib(camera::enum_attrib::WhitebalModeToAuto);
+	else
+	  log(Warning) << "WhitebalModeToAuto is not supported by the camera" << endlog();
+    }
     else if (_whitebalance_mode.value() == "auto_once")
-	cam_interface_->setAttrib(camera::enum_attrib::WhitebalModeToAutoOnce);
+    {
+	if(cam_interface_->isAttribAvail(camera::enum_attrib::WhitebalModeToAutoOnce))
+	  cam_interface_->setAttrib(camera::enum_attrib::WhitebalModeToAutoOnce);
+	else
+	  log(Warning) << "WhitebalModeToAutoOnce is not supported by the camera" << endlog();
+    }
+    else if(_whitebalance_mode.value() == "none")
+    {
+      //do nothing
+    }
     else
     {
 	throw std::runtime_error("Whitebalance mode "+ _whitebalance_mode.value() + " is not supported!");
     }
     
+    //setting _exposure_mode
     if(_exposure_mode.value() == "auto")
-	cam_interface_->setAttrib(camera::enum_attrib::ExposureModeToAuto);
+    {
+	if(cam_interface_->isAttribAvail(camera::enum_attrib::ExposureModeToAuto))
+	  cam_interface_->setAttrib(camera::enum_attrib::ExposureModeToAuto);
+	else
+	  log(Warning) << "ExposureModeToAuto is not supported by the camera" << endlog();
+    }
     else if(_exposure_mode.value() =="manual")
-	cam_interface_->setAttrib(camera::enum_attrib::ExposureModeToManual);
+    {
+	if(cam_interface_->isAttribAvail(camera::enum_attrib::ExposureModeToManual))
+	  cam_interface_->setAttrib(camera::enum_attrib::ExposureModeToManual);
+	else
+	  log(Warning) << "ExposureModeToManual is not supported by the camera" << endlog();
+    }
     else if (_exposure_mode.value() =="external")
-	cam_interface_->setAttrib(camera::enum_attrib::ExposureModeToExternal);
+    {
+	if(cam_interface_->isAttribAvail(camera::enum_attrib::ExposureModeToExternal))
+	  cam_interface_->setAttrib(camera::enum_attrib::ExposureModeToExternal);
+	else
+	  log(Warning) << "ExposureModeToExternal is not supported by the camera" << endlog();
+    }
+    else if(_exposure_mode.value() == "none")
+    {
+      //do nothing
+    }
     else
     {
 	throw std::runtime_error("Exposure mode "+ _exposure_mode.value() + " is not supported!");
     }
     
+    //setting _trigger_mode
     if(_trigger_mode.value() == "freerun")
-	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerModeToFreerun);
+    {
+	if(cam_interface_->isAttribAvail(camera::enum_attrib::FrameStartTriggerModeToFreerun))
+	  cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerModeToFreerun);
+	else
+	  log(Warning) << "FrameStartTriggerModeToFreerun is not supported by the camera" << endlog();
+    }
     else if (_trigger_mode.value() == "fixed")
-	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerModeToFixedRate);
+    {
+	if(cam_interface_->isAttribAvail(camera::enum_attrib::FrameStartTriggerModeToFixedRate))
+	  cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerModeToFixedRate);
+	else
+	  log(Warning) << "FrameStartTriggerModeToFixedRate is not supported by the camera" << endlog();
+    }
     else if (_trigger_mode.value() == "sync_in1")
-	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerModeToSyncIn1);
+    {
+	if(cam_interface_->isAttribAvail(camera::enum_attrib::FrameStartTriggerModeToSyncIn1))
+	  cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerModeToSyncIn1);
+	else
+	  log(Warning) << "FrameStartTriggerModeToSyncIn1 is not supported by the camera" << endlog();
+    }
+    else if(_trigger_mode.value() == "none")
+    {
+      //do nothing
+    }
     else
     {
 	throw std::runtime_error("Trigger mode "+ _trigger_mode.value() + " is not supported!");
     }
     
+    //setting _frame_start_trigger_event
     if(_frame_start_trigger_event.value() == "EdgeRising")
-	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToEdgeRising);
+    {
+	if(cam_interface_->isAttribAvail(camera::enum_attrib::FrameStartTriggerEventToEdgeRising))
+	  cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToEdgeRising);
+	else
+	  log(Warning) << "FrameStartTriggerEventToEdgeRising is not supported by the camera" << endlog();
+    }
     else if (_frame_start_trigger_event.value() == "EdgeFalling")
-	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToEdgeFalling);
+    {
+	if(cam_interface_->isAttribAvail(camera::enum_attrib::FrameStartTriggerEventToEdgeFalling))
+	  cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToEdgeFalling);
+	else
+	  log(Warning) << "FrameStartTriggerEventToEdgeFalling is not supported by the camera" << endlog();
+    }
     else if (_frame_start_trigger_event.value() == "EdgeAny")
-	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToEdgeAny);
+    {
+	if(cam_interface_->isAttribAvail(camera::enum_attrib::FrameStartTriggerEventToEdgeAny))
+	  cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToEdgeAny);
+	else
+	  log(Warning) << "FrameStartTriggerEventToEdgeAny is not supported by the camera" << endlog();
+    }
     else if (_frame_start_trigger_event.value() == "LevelHigh")
-	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToLevelHigh);
+    {
+	if(cam_interface_->isAttribAvail(camera::enum_attrib::FrameStartTriggerEventToLevelHigh))
+	  cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToLevelHigh);
+	else
+	  log(Warning) << "FrameStartTriggerEventToLevelHigh is not supported by the camera" << endlog();
+    }
     else if (_frame_start_trigger_event.value() == "LevelLow")
-	cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToLevelLow);
+    {
+	if(cam_interface_->isAttribAvail(camera::enum_attrib::FrameStartTriggerEventToLevelLow))
+	  cam_interface_->setAttrib(camera::enum_attrib::FrameStartTriggerEventToLevelLow);
+	else
+	  log(Warning) << "FrameStartTriggerEventToLevelLow is not supported by the camera" << endlog();
+    }
+    else if(_frame_start_trigger_event.value() == "none")
+    {
+      //do nothing
+    }
     else
     {
 	throw std::runtime_error("Frame start trigger event "+ _frame_start_trigger_event.value() + " is not supported!");
