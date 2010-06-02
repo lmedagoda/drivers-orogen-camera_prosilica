@@ -119,7 +119,7 @@ bool CameraTask::startHook()
 
 void CameraTask::updateHook()
 {
-  if (cam_interface_->isFrameAvailable())
+  while (cam_interface_->isFrameAvailable())
   {
     switch(current_frame_->frame_mode)
     {
@@ -181,11 +181,6 @@ void CameraTask::updateHook()
       default:
 	log(Error) << "output format is not supported" << endlog();
     }
-    
-    //get next frame if already available
-    //otherwise wait until callback is calles
-    if (cam_interface_->isFrameAvailable())
-      getActivity()->trigger();
   }
   
   //check if statistic shall be displayed
