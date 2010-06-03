@@ -56,8 +56,8 @@ task_context 'CameraTask' do
     	doc 'Sets a range of scene color changes in which the automatic whitebalance will not respond.'
     property('frame_start_trigger_event', 'string','none').
     	doc 'External trigger event, allowed values:  EdgeRising, EdgeFalling, EdgeAny, LevelHigh, LevelLow, none'
-    property('package_size', 'int',-1).
-    	doc 'In Bytes. Size of image data packet. This size includes the GVSP, UDP, and IP headers. (-1 == max possible)'
+    property('package_size', 'int',0).
+    	doc 'In Bytes. Size of image data packet. This size includes the GVSP, UDP, and IP headers. (0 == max possible)'
 end
 
 #use deployment camera_viewer which is defined in orocos_frame_viewer if you want to test the camera task

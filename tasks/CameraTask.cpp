@@ -38,7 +38,7 @@ bool CameraTask::configureHook()
 
     try
     {
-        std::auto_ptr<camera::CamGigEProsilica> camera(new camera::CamGigEProsilica());
+        std::auto_ptr<camera::CamGigEProsilica> camera(new camera::CamGigEProsilica(_package_size));
         log(Info) << "open camera" << endlog();
         camera->open2(camera_id,camera_acess_mode_);
         cam_interface_ = camera.release();
@@ -426,15 +426,7 @@ void CameraTask::setCameraSettings()
     {
 	throw std::runtime_error("Frame start trigger event "+ _frame_start_trigger_event.value() + " is not supported!");
     }
-    
-    if(_package_size > 0)
-    {
-      if(cam_interface_->isAttribAvail(camera::int_attrib::PacketSize))
-	  cam_interface_->setAttrib(camera::int_attrib::PacketSize,_package_size);
-	else
-	  log(Warning) << "FrameStartTriggerEventToLevelLow is not supported by the camera" << endlog();
-    }
-    
+       
     log(Info) << "camera configuration: width="<<_width <<
                                     "; height=" << _height << 
 				    "; region_x=" << _region_x << 
