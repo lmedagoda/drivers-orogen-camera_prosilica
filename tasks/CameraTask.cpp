@@ -50,8 +50,8 @@ bool CameraTask::configureHook()
     }
     
     //synchronize camera time with system time
-    //if(_synchronize_time_interval)
-    //  cam_interface_->synchronizeWithSystemTime(_synchronize_time_interval); 
+    if(_synchronize_time_interval)
+      cam_interface_->synchronizeWithSystemTime(_synchronize_time_interval); 
     
     //set callback fcn
     cam_interface_->setCallbackFcn(triggerFunction,this);
@@ -106,7 +106,6 @@ bool CameraTask::startHook()
     //init RTT::ReadOnlyPointer for output frame 
     current_frame_.reset(frame);	
     frame = NULL;
-    
     log(Info) << cam_interface_->doDiagnose() << endlog();
     cam_interface_->grab(camera::Continuously,_frame_buffer_size); 
   }
@@ -426,6 +425,14 @@ void CameraTask::setCameraSettings()
     else
     {
 	throw std::runtime_error("Frame start trigger event "+ _frame_start_trigger_event.value() + " is not supported!");
+    }
+    
+    if(_package_size > 0)
+    {
+      if(cam_interface_->isAttribAvail(camera::int_attrib::PacketSize))
+	  cam_interface_->setAttrib(camera::int_attrib::PacketSize,_package_size);
+	else
+	  log(Warning) << "FrameStartTriggerEventToLevelLow is not supported by the camera" << endlog();
     }
     
     log(Info) << "camera configuration: width="<<_width <<
