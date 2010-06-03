@@ -69,3 +69,13 @@ deployment "camera" do
     end
 end
 
+deployment "camerab" do
+    camera_task = task("camera", 'CameraTask')
+    camera_taskb = task("camerab", 'CameraTask')
+    add_default_logger
+    if !corba_enabled?
+       browse camera_task
+       browse camera_taskb
+    end
+end
+
