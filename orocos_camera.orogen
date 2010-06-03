@@ -62,19 +62,11 @@ end
 
 #use deployment camera_viewer which is defined in orocos_frame_viewer if you want to test the camera task
 deployment "camera" do
-    camera_task = task("camera", 'CameraTask')
+    camera_taska = task("camera_a", 'CameraTask')
+    camera_taskb = task("camera_b", 'CameraTask')
     add_default_logger
     if !corba_enabled?
-       browse camera_task
-    end
-end
-
-deployment "camerab" do
-    camera_task = task("camera", 'CameraTask')
-    camera_taskb = task("camerab", 'CameraTask')
-    add_default_logger
-    if !corba_enabled?
-       browse camera_task
+       browse camera_taska
        browse camera_taskb
     end
 end

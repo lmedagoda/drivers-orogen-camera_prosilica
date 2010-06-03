@@ -132,6 +132,9 @@ void CameraTask::updateHook()
 	   {
 	     Frame *frame_ptr = current_frame_.write_access();
 	     Helper::convertColor(camera_frame,*frame_ptr,MODE_RGB);
+	     //copy attributes 
+	     
+	     
 	     current_frame_.reset(frame_ptr);
 	     _frame.write(current_frame_);
 	     valid_frames_count_++;
