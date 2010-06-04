@@ -73,9 +73,9 @@ bool CameraTask::startHook()
     if(camera_acess_mode_!= Monitor)
     {
       if(_output_format.value() == "bayer")
-	 camera_frame.init(_width,_height,8,MODE_BAYER_GBRG);    
+	 camera_frame.init(_width,_height,8,MODE_BAYER);    
       else if (_output_format.value() == "rgb8")
-	 camera_frame.init(_width,_height,8,MODE_BAYER_GBRG);  
+	 camera_frame.init(_width,_height,8,MODE_BAYER);  
       else if (_output_format.value() == "mono8")
 	 camera_frame.init(_width,_height,8,MODE_GRAYSCALE);  
       else
@@ -92,7 +92,7 @@ bool CameraTask::startHook()
     
     //define orocos_camera output frame
     if(_output_format.value() == "bayer")
-	frame->init(camera_frame.getWidth(),camera_frame.getHeight(),8,MODE_BAYER_GBRG); 
+	frame->init(camera_frame.getWidth(),camera_frame.getHeight(),8,MODE_BAYER); 
     else if (_output_format.value() == "rgb8")
 	frame->init(camera_frame.getWidth(),camera_frame.getHeight(),8,MODE_RGB);
     else if (_output_format.value() == "mono8")
@@ -132,7 +132,8 @@ void CameraTask::updateHook()
 	catch(std::runtime_error e)
 	{ 
 	  log(Warning) << "failed to retrieve frame: " << e.what() << endlog();
-	  return;
+	  if(_clear_buffer_if_frame_drop)
+	    cam_interface_->skipFrames();
 	}
 	
 	if (camera_frame.getStatus() == STATUS_VALID)
@@ -152,7 +153,11 @@ void CameraTask::updateHook()
 	break;
       //no debayering
       case MODE_GRAYSCALE:
+      case MODE_BAYER:
       case MODE_BAYER_GBRG:
+      case MODE_BAYER_GRBG:
+      case MODE_BAYER_RGGB:
+      case MODE_BAYER_BGGR:
       {
 	Frame *frame_ptr = current_frame_.write_access();
 	try
@@ -162,7 +167,8 @@ void CameraTask::updateHook()
 	catch(std::runtime_error e)
 	{ 
 	  log(Warning) << "failed to retrieve frame: " << e.what() << endlog();
-	  return;
+	  if(_clear_buffer_if_frame_drop)
+	    cam_interface_->skipFrames();
 	}
 	if (frame_ptr->getStatus() == STATUS_VALID)
 	{
