@@ -50,8 +50,8 @@ bool CameraTask::configureHook()
     }
     
     //synchronize camera time with system time
-    if(_synchronize_time_interval)
-      cam_interface_->synchronizeWithSystemTime(_synchronize_time_interval); 
+ //   if(_synchronize_time_interval)
+ //     cam_interface_->synchronizeWithSystemTime(_synchronize_time_interval); 
     
     //set callback fcn
     cam_interface_->setCallbackFcn(triggerFunction,this);
