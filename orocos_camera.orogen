@@ -38,7 +38,7 @@ task_context 'CameraTask' do
     	doc 'output format of the output_port frame, allowed values: bayer, rgb8, (the received camera frame is always bayer)'
     property('log_interval_in_sec', 'int',2).
     	doc 'interval for logging a statistic about valid and invalid frames per second (0= logging of)'
-    property('frame_buffer_size', 'int',5).
+    property('frame_buffer_size', 'int',10).
     	doc 'size if the frame buffer'
     property('mode', 'string','Master').
     	doc 'opening mode (Master, Monitor, MasterMulticast)'

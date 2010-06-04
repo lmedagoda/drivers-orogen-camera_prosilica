@@ -121,58 +121,71 @@ void CameraTask::updateHook()
 {
   if (cam_interface_->isFrameAvailable())
   {
-    try 
+    switch(current_frame_->frame_mode)
     {
-       switch(current_frame_->frame_mode)
-       {
-	 //debayering has to be performed
-	 case MODE_RGB:
-	   cam_interface_->retrieveFrame(camera_frame);
-	   if (camera_frame.getStatus() == STATUS_VALID)
-	   {
-	     Frame *frame_ptr = current_frame_.write_access();
-	     Helper::convertColor(camera_frame,*frame_ptr,MODE_RGB);
-	     //copy attributes 
-	     
-	     
-	     current_frame_.reset(frame_ptr);
-	     _frame.write(current_frame_);
-	     valid_frames_count_++;
-	   }
-	   else
-	   {
-	     invalid_frames_count_++;
-	   }
-	   break;
-	 //no debayering
-	 case MODE_GRAYSCALE:
-	 case MODE_BAYER_GBRG:
-	 {
-	   Frame *frame_ptr = current_frame_.write_access();
-	   cam_interface_->retrieveFrame(*frame_ptr);
-	   if (frame_ptr->getStatus() == STATUS_VALID)
-	   {
-	    // std::cout << "camera " << _camera_id <<" frame timestamp:" << frame_ptr->time << std::endl;
-	     current_frame_.reset(frame_ptr);
-	     _frame.write(current_frame_);
-	     valid_frames_count_++;
-	   }
-	   else
-	   {
-	     current_frame_.reset(frame_ptr);
-	     invalid_frames_count_++;
-	   }
-	   break;
-	 }
-	 default:
-	   log(Error) << "output format is not supported" << endlog();
-       }
+      //debayering has to be performed
+      case MODE_RGB:
+	try 
+	{
+	  cam_interface_->retrieveFrame(camera_frame);
+	}
+	catch(std::runtime_error e)
+	{ 
+	  log(Warning) << "failed to retrieve frame: " << e.what() << endlog();
+	  return;
+	}
+	
+	if (camera_frame.getStatus() == STATUS_VALID)
+	{
+	  Frame *frame_ptr = current_frame_.write_access();
+	  Helper::convertColor(camera_frame,*frame_ptr,MODE_RGB);
+	  //copy attributes 
+
+	  current_frame_.reset(frame_ptr);
+	  _frame.write(current_frame_);
+	  valid_frames_count_++;
+	}
+	else
+	{
+	  invalid_frames_count_++;
+	}
+	break;
+      //no debayering
+      case MODE_GRAYSCALE:
+      case MODE_BAYER_GBRG:
+      {
+	Frame *frame_ptr = current_frame_.write_access();
+	try
+	{
+	  cam_interface_->retrieveFrame(*frame_ptr);
+	}
+	catch(std::runtime_error e)
+	{ 
+	  log(Warning) << "failed to retrieve frame: " << e.what() << endlog();
+	  return;
+	}
+	if (frame_ptr->getStatus() == STATUS_VALID)
+	{
+	// std::cout << "camera " << _camera_id <<" frame timestamp:" << frame_ptr->time << std::endl;
+	  current_frame_.reset(frame_ptr);
+	  _frame.write(current_frame_);
+	  valid_frames_count_++;
+	}
+	else
+	{
+	  current_frame_.reset(frame_ptr);
+	  invalid_frames_count_++;
+	}
+	break;
+      }
+      default:
+	log(Error) << "output format is not supported" << endlog();
     }
-    catch(std::runtime_error e)
-    { 
-      log(Error) << "failed to retrieve frame: " << e.what() << endlog();
-      return;
-    }
+    
+    //get next frame if already available
+    //otherwise wait until callback is calles
+    if (cam_interface_->isFrameAvailable())
+      getActivity()->trigger();
   }
   
   //check if statistic shall be displayed
