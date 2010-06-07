@@ -1,6 +1,5 @@
 name 'camera'
 
-enable_corba
 using_library "camera_prosilica_gige"
 import_types_from "base"
 
