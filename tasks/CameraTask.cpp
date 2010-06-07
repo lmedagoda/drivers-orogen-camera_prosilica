@@ -1,7 +1,7 @@
 #include "CameraTask.hpp"
 
 #include <rtt/NonPeriodicActivity.hpp>
-
+#include "frame_helper/FrameHelper.h"
 
 using namespace camera;
 using namespace base::samples::frame;
@@ -139,7 +139,7 @@ void CameraTask::updateHook()
 	if (camera_frame.getStatus() == STATUS_VALID)
 	{
 	  Frame *frame_ptr = current_frame_.write_access();
-	  Helper::convertColor(camera_frame,*frame_ptr,MODE_RGB);
+	  FrameHelper::convertColor(camera_frame,*frame_ptr);
 	  //copy attributes 
 
 	  current_frame_.reset(frame_ptr);

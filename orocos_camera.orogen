@@ -1,5 +1,6 @@
 name 'camera'
 
+using_library "frame_helper"
 using_library "camera_prosilica_gige"
 import_types_from "base"
 
