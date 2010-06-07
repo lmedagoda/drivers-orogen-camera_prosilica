@@ -2,7 +2,7 @@ name 'camera'
 
 enable_corba
 using_library "camera_prosilica_gige"
-import_types_from "base/samples/frame.h"
+import_types_from "base"
 
 task_context 'CameraTask' do
     needs_configuration
