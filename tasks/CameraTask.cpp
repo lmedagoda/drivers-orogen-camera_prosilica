@@ -72,7 +72,7 @@ bool CameraTask::startHook()
     Frame *frame = new Frame;	
     if(camera_acess_mode_!= Monitor)
     {
-      if(_output_format.value() == "bayer")
+      if(_output_format.value() == "bayer8")
 	 camera_frame.init(_width,_height,8,MODE_BAYER);    
       else if (_output_format.value() == "rgb8")
 	 camera_frame.init(_width,_height,8,MODE_BAYER);  
@@ -91,7 +91,7 @@ bool CameraTask::startHook()
     }
     
     //define orocos_camera output frame
-    if(_output_format.value() == "bayer")
+    if(_output_format.value() == "bayer8")
 	frame->init(camera_frame.getWidth(),camera_frame.getHeight(),8,MODE_BAYER); 
     else if (_output_format.value() == "rgb8")
 	frame->init(camera_frame.getWidth(),camera_frame.getHeight(),8,MODE_RGB);

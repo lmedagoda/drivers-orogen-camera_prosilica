@@ -2,6 +2,7 @@ name 'camera'
 
 using_library "frame_helper"
 using_library "camera_prosilica_gige"
+import_types_from "
 import_types_from "base"
 
 task_context 'CameraTask' do
@@ -35,7 +36,7 @@ task_context 'CameraTask' do
     property('binning_y', 'int',1).
     	doc 'vertical binning. 1=no binning.'
     property('output_format', 'string','rgb8').
-    	doc 'output format of the output_port frame, allowed values: bayer, rgb8, (the received camera frame is always bayer)'
+    	doc 'output format of the output_port frame, allowed values: bayer8, rgb8, (the received camera frame is always bayer)'
     property('log_interval_in_sec', 'int',2).
     	doc 'interval for logging a statistic about valid and invalid frames per second (0= logging of)'
     property('frame_buffer_size', 'int',10).
@@ -49,7 +50,7 @@ task_context 'CameraTask' do
     property('whitebalance_blue', 'int',100).
     	doc 'Blue gain expressed as a percentage of the camera default setting.'
     property('whitebalance_red', 'int',100).
-    	doc 'Red gain expressed as a percentage of the camera default setting.'   
+    	doc 'Red gain expressed as a percentage of the camera default setting.'
     property('whitebalance_auto_rate', 'int',100).
     	doc 'How fast the Auto white balance will update.'
     property('whitebalance_auto_threshold', 'int',5).
