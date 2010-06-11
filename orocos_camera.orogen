@@ -3,9 +3,59 @@ name 'camera'
 using_library "frame_helper"
 using_library "camera_prosilica_gige"
 import_types_from "base"
+import_types_from "camera_interface/CamTypes.h"
 
 task_context 'CameraTask' do
     needs_configuration
+
+    method('setDoubleAttrib').
+      returns('bool').
+      argument('type', '/camera/double_attrib/CamAttrib', 'type').
+      argument('value', 'double', 'value')
+
+    method('setEnumAttrib').
+      returns('bool').
+      argument('type', '/camera/enum_attrib/CamAttrib', 'type')
+
+    method('setIntAttrib').
+      returns('bool').
+      argument('type', '/camera/int_attrib/CamAttrib', 'type').
+      argument('value', 'int', 'value')
+
+    method('setStringAttrib').
+      returns('bool').
+      argument('type', '/camera/str_attrib/CamAttrib', 'type').
+      argument('value', 'string', 'value')
+
+    method('getDoubleAttrib').
+      returns('double').
+      argument('type', '/camera/double_attrib/CamAttrib', 'type')
+
+    method('isEnumAttribSet').
+      returns('bool').
+      argument('type', '/camera/enum_attrib/CamAttrib', 'type')
+
+    method('getIntAttrib').
+      returns('int').
+      argument('type', '/camera/int_attrib/CamAttrib', 'type')
+   
+    method('getStringAttrib').
+      returns('string').
+      argument('type', '/camera/str_attrib/CamAttrib', 'type')
+
+    method('getIntRangeMin').
+      returns('int').
+      argument('type', '/camera/int_attrib/CamAttrib', 'type')
+    method('getIntRangeMax').
+      returns('int').
+      argument('type', '/camera/int_attrib/CamAttrib', 'type')
+    method('getDoubleRangeMin').
+      returns('double').
+      argument('type', '/camera/double_attrib/CamAttrib', 'type')
+    method('getDoubleRangeMax').
+      returns('double').
+      argument('type', '/camera/double_attrib/CamAttrib', 'type')
+
     output_port 'frame', ro_ptr('base::samples::frame::Frame')
     
     property('camera_id', 'string','105984').

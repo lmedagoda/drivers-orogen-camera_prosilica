@@ -119,7 +119,7 @@ bool CameraTask::startHook()
 
 void CameraTask::updateHook()
 {
-  while (cam_interface_->isFrameAvailable())
+  if (cam_interface_->isFrameAvailable())
   {
     switch(current_frame_->frame_mode)
     {
@@ -214,6 +214,9 @@ void CameraTask::updateHook()
       valid_frames_count_ = 0;
       invalid_frames_count_ = 0;
   }
+ 
+  if (cam_interface_->isFrameAvailable())
+    this->getActivity()->trigger();
 }
 
 void CameraTask::stopHook()
@@ -459,6 +462,175 @@ void CameraTask::triggerFunction(const void *p)
 {
   ((RTT::TaskContext*)p)->getActivity()->trigger();
 }
+
+
+//methods interface for the orocos module
+bool CameraTask::setDoubleAttrib(camera::double_attrib::CamAttrib const & type, double value)
+{
+   try
+   {
+    cam_interface_->setAttrib(type,value);
+   }
+   catch(std::runtime_error e)
+   {
+    return false;
+   }
+   return true;
+}
+
+bool CameraTask::setEnumAttrib(camera::enum_attrib::CamAttrib const & type)
+{
+   try
+   {
+    cam_interface_->setAttrib(type);
+   }
+   catch(std::runtime_error e)
+   {
+    return false;
+   }
+   return true;
+}
+
+bool CameraTask::setIntAttrib(camera::int_attrib::CamAttrib const & type, int value)
+{
+   try
+   {
+    cam_interface_->setAttrib(type,value);
+   }
+   catch(std::runtime_error e)
+   {
+    return false;
+   }
+   return true;
+}
+
+bool CameraTask::setStringAttrib(camera::str_attrib::CamAttrib const & type, std::string const & value)
+{
+   try
+   {
+    cam_interface_->setAttrib(type,value);
+   }
+   catch(std::runtime_error e)
+   {
+    return false;
+   }
+   return true;
+}
+
+double CameraTask::getDoubleAttrib(camera::double_attrib::CamAttrib const & type)
+{
+   try
+   {
+    return cam_interface_->getAttrib(type);
+   }
+   catch(std::runtime_error e)
+   {
+    return -1;
+   }
+   return -1;
+}
+
+bool CameraTask::isEnumAttribSet(camera::enum_attrib::CamAttrib const & type)
+{
+   try
+   {
+    return cam_interface_->isAttribSet(type);
+   }
+   catch(std::runtime_error e)
+   {
+    return false;
+   }
+   return false;
+}
+
+int CameraTask::getIntAttrib(camera::int_attrib::CamAttrib const & type)
+{
+   try
+   {
+    return cam_interface_->getAttrib(type);
+   }
+   catch(std::runtime_error e)
+   {
+    return -1;
+   }
+   return -1;
+}
+
+std::string CameraTask::getStringAttrib(camera::str_attrib::CamAttrib const & type)
+{
+   try
+   {
+    return cam_interface_->getAttrib(type);
+   }
+   catch(std::runtime_error e)
+   {
+    return "";
+   }
+   return "";
+}
+
+int CameraTask::getIntRangeMin(camera::int_attrib::CamAttrib const & type)
+{
+   try
+   {
+     int imax,imin;
+     cam_interface_->getRange(type,imin,imax);
+     return imin;
+   }
+   catch(std::runtime_error e)
+   {
+    return -1;
+   }
+   return -1;
+}
+
+int CameraTask::getIntRangeMax(camera::int_attrib::CamAttrib const & type)
+{
+   try
+   {
+     int imax,imin;
+     cam_interface_->getRange(type,imin,imax);
+     return imax;
+   }
+   catch(std::runtime_error e)
+   {
+    return -1;
+   }
+   return -1;
+}
+
+double CameraTask::getDoubleRangeMin(camera::double_attrib::CamAttrib const & type)
+{
+   try
+   {
+     double dmax,dmin;
+     cam_interface_->getRange(type,dmin,dmax);
+     return dmin;
+   }
+   catch(std::runtime_error e)
+   {
+    return -1;
+   }
+   return -1;
+}
+
+double CameraTask::getDoubleRangeMax(camera::double_attrib::CamAttrib const & type)
+{
+   try
+   {
+     double dmax,dmin;
+     cam_interface_->getRange(type,dmin,dmax);
+     return dmax;
+   }
+   catch(std::runtime_error e)
+   {
+    return -1;
+   }
+   return -1;
+}
+
+
+
 
 // void CameraTask::errorHook()
 // {

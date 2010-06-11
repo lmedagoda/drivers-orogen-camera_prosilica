@@ -23,6 +23,22 @@ namespace camera {
       base::Time time_save_;
       AccessMode camera_acess_mode_;
       
+    protected:
+	bool setDoubleAttrib(camera::double_attrib::CamAttrib const & type, double value);
+	bool setEnumAttrib(camera::enum_attrib::CamAttrib const & type);
+	bool setIntAttrib(camera::int_attrib::CamAttrib const & type, int value); 
+	bool setStringAttrib(camera::str_attrib::CamAttrib const & type, std::string const & value);
+    
+	double getDoubleAttrib(camera::double_attrib::CamAttrib const & type);
+	bool isEnumAttribSet(camera::enum_attrib::CamAttrib const & type);
+	int getIntAttrib(camera::int_attrib::CamAttrib const & type);
+	std::string getStringAttrib(camera::str_attrib::CamAttrib const & type);
+	
+	int getIntRangeMin(camera::int_attrib::CamAttrib const & type);
+	int getIntRangeMax(camera::int_attrib::CamAttrib const & type);
+	double getDoubleRangeMin(camera::double_attrib::CamAttrib const & type);
+	double getDoubleRangeMax(camera::double_attrib::CamAttrib const & type);
+      
     public:
         CameraTask(std::string const& name = "camera::CameraTask");
 
