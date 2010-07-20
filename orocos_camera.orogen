@@ -119,7 +119,6 @@ deployment "camera" do
     add_default_logger
     if !corba_enabled?
        browse camera_taska
-       browse camera_taskb
     end
 end
 
