@@ -122,3 +122,5 @@ deployment "camera" do
     end
 end
 
+simple_deployment("left_camera", 'CameraTask')
+simple_deployment("right_camera", 'CameraTask')
