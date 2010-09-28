@@ -5,8 +5,8 @@
   <license></license>
   <url>http://</url>
   <logo>http://</logo>
+  <depend package="drivers/camera_prosilica"/>
   <depend package="base" />
-  <depend package="drivers/camera_prosilica_gige"/>
   <depend package="libs/frame_helper"/>
   <versioncontrol type="git" url="" />
   <export>
