@@ -22,6 +22,9 @@ namespace camera {
       unsigned int valid_frames_count_;
       base::Time time_save_;
       AccessMode camera_acess_mode_;
+      float stat_frame_rate;
+      float stat_valid_frame_rate;
+      float stat_invalid_frame_rate;
       
     protected:
 	bool setDoubleAttrib(camera::double_attrib::CamAttrib const & type, double value);
@@ -38,6 +41,9 @@ namespace camera {
 	int getIntRangeMax(camera::int_attrib::CamAttrib const & type);
 	double getDoubleRangeMin(camera::double_attrib::CamAttrib const & type);
 	double getDoubleRangeMax(camera::double_attrib::CamAttrib const & type);
+
+	inline void setExtraAttributes(base::samples::frame::Frame *frame_ptr);
+
       
     public:
         CameraTask(std::string const& name = "camera::CameraTask");

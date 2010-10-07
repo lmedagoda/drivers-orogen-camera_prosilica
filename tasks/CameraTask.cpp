@@ -12,9 +12,8 @@ RTT::NonPeriodicActivity* CameraTask::getNonPeriodicActivity()
 
 
 CameraTask::CameraTask(std::string const& name)
-    : CameraTaskBase(name)
+    : CameraTaskBase(name),stat_frame_rate(0),stat_invalid_frame_rate(0),stat_valid_frame_rate(0)
 {
-
 }
 
 bool CameraTask::configureHook()
@@ -117,6 +116,36 @@ bool CameraTask::startHook()
   return true;
 }
 
+inline void CameraTask::setExtraAttributes(base::samples::frame::Frame *frame_ptr)
+{
+  if(_log_interval_in_sec)
+  {
+      base::Time time = base::Time::now();
+      float time_diff = (time - time_save_).toSeconds();
+
+       if(time_diff > _log_interval_in_sec)
+       {
+          stat_valid_frame_rate  = ((float)valid_frames_count_)/time_diff;
+          stat_invalid_frame_rate  = ((float)invalid_frames_count_)/time_diff;
+          time_save_ = time;
+          valid_frames_count_ = 0;
+          invalid_frames_count_ = 0;
+          //get camera frame rate
+          if(cam_interface_->isAttribAvail(double_attrib::StatFrameRate))
+            stat_frame_rate = cam_interface_->getAttrib(double_attrib::StatFrameRate);
+       }
+
+      frame_ptr->setAttribute<float>("StatFps",stat_frame_rate);
+      frame_ptr->setAttribute<float>("StatValidFps",stat_valid_frame_rate);
+      frame_ptr->setAttribute<float>("StatInValidFps",stat_invalid_frame_rate);
+  }
+  else  //prevents overflow after > 800 days
+  {
+     valid_frames_count_ = 0;
+     invalid_frames_count_ = 0;
+  }
+}
+
 void CameraTask::updateHook()
 {
   if (cam_interface_->isFrameAvailable())
@@ -140,8 +169,7 @@ void CameraTask::updateHook()
 	{
 	  Frame *frame_ptr = current_frame_.write_access();
 	  FrameHelper::convertColor(camera_frame,*frame_ptr);
-	  //copy attributes 
-
+	  setExtraAttributes(frame_ptr);
 	  current_frame_.reset(frame_ptr);
 	  _frame.write(current_frame_);
 	  valid_frames_count_++;
@@ -172,7 +200,7 @@ void CameraTask::updateHook()
 	}
 	if (frame_ptr->getStatus() == STATUS_VALID)
 	{
-	// std::cout << "camera " << _camera_id <<" frame timestamp:" << frame_ptr->time << std::endl;
+	  setExtraAttributes(frame_ptr);
 	  current_frame_.reset(frame_ptr);
 	  _frame.write(current_frame_);
 	  valid_frames_count_++;
@@ -188,33 +216,6 @@ void CameraTask::updateHook()
 	log(Error) << "output format is not supported" << endlog();
     }
   }
-  
-  //check if statistic shall be displayed
-  if(_log_interval_in_sec)
-  {
-    base::Time time = base::Time::now();
-    if((time - time_save_).toSeconds() > _log_interval_in_sec)
-    { 
-      if(invalid_frames_count_)
-	log(Warning) << "camera statistic: " << 
-	  ((float)valid_frames_count_)/_log_interval_in_sec << " valid fps; " <<
-	  ((float)invalid_frames_count_)/_log_interval_in_sec << " invalid fps; " << endlog();
-      else
-	log(Info) << "camera statistic: " << 
-	  ((float)valid_frames_count_)/_log_interval_in_sec << " valid fps; " <<
-	  ((float)invalid_frames_count_)/_log_interval_in_sec << " invalid fps; " << endlog();
-      
-      time_save_ = time;
-      valid_frames_count_ = 0;
-      invalid_frames_count_ = 0;
-    }
-  }
-  else	//prevents overflow after > 800 days
-  {
-      valid_frames_count_ = 0;
-      invalid_frames_count_ = 0;
-  }
- 
   if (cam_interface_->isFrameAvailable())
     this->getActivity()->trigger();
 }
