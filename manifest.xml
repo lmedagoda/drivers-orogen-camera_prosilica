@@ -6,8 +6,8 @@
   <url>http://</url>
   <logo>http://</logo>
   <depend package="drivers/camera_prosilica"/>
-  <depend package="base" />
-  <depend package="libs/frame_helper"/>
+  <depend package="base/types" />
+  <depend package="video_processing/frame_helper"/>
   <versioncontrol type="git" url="" />
   <export>
     <cpp cflags="" lflags="" />
