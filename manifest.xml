@@ -7,7 +7,7 @@
   <logo>http://</logo>
   <depend package="drivers/camera_prosilica"/>
   <depend package="base/types" />
-  <depend package="video_processing/frame_helper"/>
+  <depend package="image_processing/frame_helper"/>
   <versioncontrol type="git" url="" />
   <export>
     <cpp cflags="" lflags="" />

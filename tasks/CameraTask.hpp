@@ -4,11 +4,6 @@
 #include "camera/CameraTaskBase.hpp"
 #include "camera_prosilica_gige/CamGigEProsilica.h"
 
-namespace RTT
-{
-    class NonPeriodicActivity;
-}
-
 
 namespace camera {
     class CameraTask : public CameraTaskBase
@@ -16,39 +11,58 @@ namespace camera {
 	friend class CameraTaskBase;
     protected:
       camera::CamInterface* cam_interface_;			//handle to the camera
-      RTT::ReadOnlyPointer<base::samples::frame::Frame> current_frame_;	//Orocos importer output 
+      RTT::extras::ReadOnlyPointer<base::samples::frame::Frame> current_frame_;	//Orocos importer output 
       base::samples::frame::Frame camera_frame;				//raw camera frame
       unsigned int invalid_frames_count_;		
       unsigned int valid_frames_count_;
       base::Time time_save_;
       AccessMode camera_acess_mode_;
       float stat_frame_rate;
-      float stat_valid_frame_rate;
       float stat_invalid_frame_rate;
+      float stat_valid_frame_rate;
       
     protected:
-	bool setDoubleAttrib(camera::double_attrib::CamAttrib const & type, double value);
-	bool setEnumAttrib(camera::enum_attrib::CamAttrib const & type);
-	bool setIntAttrib(camera::int_attrib::CamAttrib const & type, int value); 
-	bool setStringAttrib(camera::str_attrib::CamAttrib const & type, std::string const & value);
-    
-	double getDoubleAttrib(camera::double_attrib::CamAttrib const & type);
-	bool isEnumAttribSet(camera::enum_attrib::CamAttrib const & type);
-	int getIntAttrib(camera::int_attrib::CamAttrib const & type);
-	std::string getStringAttrib(camera::str_attrib::CamAttrib const & type);
-	
-	int getIntRangeMin(camera::int_attrib::CamAttrib const & type);
-	int getIntRangeMax(camera::int_attrib::CamAttrib const & type);
-	double getDoubleRangeMin(camera::double_attrib::CamAttrib const & type);
-	double getDoubleRangeMax(camera::double_attrib::CamAttrib const & type);
-
 	inline void setExtraAttributes(base::samples::frame::Frame *frame_ptr);
+        /* Handler for the getDoubleAttrib operation
+         */
+        virtual double getDoubleAttrib(::camera::double_attrib::CamAttrib const & type);
+        /* Handler for the getDoubleRangeMax operation
+         */
+        virtual double getDoubleRangeMax(::camera::double_attrib::CamAttrib const & type);
+        /* Handler for the getDoubleRangeMin operation
+         */
+        virtual double getDoubleRangeMin(::camera::double_attrib::CamAttrib const & type);
+        /* Handler for the getIntAttrib operation
+         */
+        virtual boost::int32_t getIntAttrib(::camera::int_attrib::CamAttrib const & type);
+        /* Handler for the getIntRangeMax operation
+         */
+        virtual boost::int32_t getIntRangeMax(::camera::int_attrib::CamAttrib const & type);
+        /* Handler for the getIntRangeMin operation
+         */
+        virtual boost::int32_t getIntRangeMin(::camera::int_attrib::CamAttrib const & type);
+        /* Handler for the getStringAttrib operation
+         */
+        virtual ::std::string getStringAttrib(::camera::str_attrib::CamAttrib const & type);
+        /* Handler for the isEnumAttribSet operation
+         */
+        virtual bool isEnumAttribSet(::camera::enum_attrib::CamAttrib const & type);
+        /* Handler for the setDoubleAttrib operation
+         */
+        virtual bool setDoubleAttrib(::camera::double_attrib::CamAttrib const & type, double value);
+        /* Handler for the setEnumAttrib operation
+         */
+        virtual bool setEnumAttrib(::camera::enum_attrib::CamAttrib const & type);
+        /* Handler for the setIntAttrib operation
+         */
+        virtual bool setIntAttrib(::camera::int_attrib::CamAttrib const & type, boost::int32_t value);
+        /* Handler for the setStringAttrib operation
+         */
+        virtual bool setStringAttrib(::camera::str_attrib::CamAttrib const & type, ::std::string const & value);
 
       
     public:
         CameraTask(std::string const& name = "camera::CameraTask");
-
-        RTT::NonPeriodicActivity* getNonPeriodicActivity();
 
         /** This hook is called by Orocos when the state machine transitions
          * from PreOperational to Stopped. If it returns false, then the
