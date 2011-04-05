@@ -111,6 +111,8 @@ task_context 'CameraTask' do
     	doc 'In Bytes. Size of image data packet. This size includes the GVSP, UDP, and IP headers. (0 == max possible)'
     property('clear_buffer_if_frame_drop', 'bool',false).
     	doc 'if the queue is empty because retrieve was called too rarely clear buffer'
+
+    default_activity :periodic, 0.01
 end
 
 #use deployment camera_viewer which is defined in orocos_frame_viewer if you want to test the camera task
