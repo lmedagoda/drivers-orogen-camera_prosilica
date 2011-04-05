@@ -112,7 +112,7 @@ task_context 'CameraTask' do
     property('clear_buffer_if_frame_drop', 'bool',false).
     	doc 'if the queue is empty because retrieve was called too rarely clear buffer'
 
-    default_activity :periodic, 0.01
+#    default_activity :periodic, 0.01
 end
 
 #use deployment camera_viewer which is defined in orocos_frame_viewer if you want to test the camera task
