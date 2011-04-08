@@ -79,7 +79,7 @@ bool CameraTask::startHook()
 	 camera_frame.init(_width,_height,8,frame::MODE_GRAYSCALE);  
       else
       {
-	  RTT::log(RTT::Error) << "output format "<< _output_format << " is not supported!" << RTT::endlog();
+	  RTT::log(RTT::Error) << "output format "<< _output_format.value() << " is not supported!" << RTT::endlog();
 	  return false;
       }
       setCameraSettings();
@@ -98,7 +98,7 @@ bool CameraTask::startHook()
 	frame->init(camera_frame.getWidth(),camera_frame.getHeight(),8,frame::MODE_GRAYSCALE);  
     else
     {
-	RTT::log(RTT::Error) << "output format "<< _output_format << " is not supported!" << RTT::endlog();
+	RTT::log(RTT::Error) << "output format "<< _output_format.value() << " is not supported!" << RTT::endlog();
 	return false;
     }
     
