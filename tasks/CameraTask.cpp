@@ -4,6 +4,7 @@
 
 using namespace camera;
 using namespace base::samples;
+using namespace frame_helper;
 
 CameraTask::CameraTask(std::string const& name)
     : CameraTaskBase(name),stat_frame_rate(0),stat_invalid_frame_rate(0),stat_valid_frame_rate(0)
