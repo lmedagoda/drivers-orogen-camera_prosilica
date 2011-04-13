@@ -20,7 +20,7 @@ CameraTask::~CameraTask()
         cam_interface_ = NULL;
     }
 }
-utopr
+
 bool CameraTask::configureHook()
 {
     if (! CameraTaskBase::configureHook())
