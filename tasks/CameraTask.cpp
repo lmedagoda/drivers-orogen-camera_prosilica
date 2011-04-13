@@ -11,6 +11,15 @@ CameraTask::CameraTask(std::string const& name)
 {
 }
 
+CameraTask::~CameraTask()
+{
+    if(cam_interface_)
+    {
+        cam_interface_->close();
+        delete cam_interface_;
+    }
+}
+
 bool CameraTask::configureHook()
 {
     if (! CameraTaskBase::configureHook())
