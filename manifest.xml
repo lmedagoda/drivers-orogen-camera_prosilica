@@ -5,9 +5,8 @@
   <license></license>
   <url>http://</url>
   <logo>http://</logo>
+  <depend package="drivers/orogen/camera_base"/>
   <depend package="drivers/camera_prosilica"/>
-  <depend package="base/types" />
-  <depend package="image_processing/frame_helper"/>
   <versioncontrol type="git" url="" />
   <export>
     <cpp cflags="" lflags="" />

@@ -1,78 +1,19 @@
-name 'camera'
+name 'camera_prosilica'
 
-using_library "frame_helper"
 using_library "camera_prosilica_gige"
-import_types_from "base"
+using_library "opencv"
+using_task_library "camera_base"
+import_types_from "camera_base"
 
-import_types_from "camera_interface/CamTypes.h"
+task_context 'Task' do
+    subclasses "camera_base::Task"
 
-task_context 'CameraTask' do
-    needs_configuration
-
-    operation('setDoubleAttrib').
-      returns('bool').
-      argument('type', '/camera/double_attrib/CamAttrib', 'type').
-      argument('value', 'double', 'value')
-
-    operation('setEnumAttrib').
-      returns('bool').
-      argument('type', '/camera/enum_attrib/CamAttrib', 'type')
-
-    operation('setIntAttrib').
-      returns('bool').
-      argument('type', '/camera/int_attrib/CamAttrib', 'type').
-      argument('value', 'int', 'value')
-
-    operation('setStringAttrib').
-      returns('bool').
-      argument('type', '/camera/str_attrib/CamAttrib', 'type').
-      argument('value', 'string', 'value')
-
-    operation('getDoubleAttrib').
-      returns('double').
-      argument('type', '/camera/double_attrib/CamAttrib', 'type')
-
-    operation('isEnumAttribSet').
-      returns('bool').
-      argument('type', '/camera/enum_attrib/CamAttrib', 'type')
-
-    operation('getIntAttrib').
-      returns('int').
-      argument('type', '/camera/int_attrib/CamAttrib', 'type')
-   
-    operation('getStringAttrib').
-      returns('string').
-      argument('type', '/camera/str_attrib/CamAttrib', 'type')
-
-    operation('getIntRangeMin').
-      returns('int').
-      argument('type', '/camera/int_attrib/CamAttrib', 'type')
-    operation('getIntRangeMax').
-      returns('int').
-      argument('type', '/camera/int_attrib/CamAttrib', 'type')
-    operation('getDoubleRangeMin').
-      returns('double').
-      argument('type', '/camera/double_attrib/CamAttrib', 'type')
-    operation('getDoubleRangeMax').
-      returns('double').
-      argument('type', '/camera/double_attrib/CamAttrib', 'type')
-
-    output_port 'frame', ro_ptr('base::samples::frame::Frame')
-    
-    property('camera_id', 'string','105984').
-    	doc 'unique camerea id'
-    property('width', 'int',640).
-    	doc 'width of the frame'
-    property('height', 'int',480).
-    	doc 'height of the frame'
     property('region_x', 'int',0).
     	doc 'start of region readout, in pixels; left edge.'
     property('region_y', 'int',0).
     	doc 'start of region readout, in pixels; top edge.'
     property('trigger_mode', 'string','fixed').
     	doc 'trigger mode of the camera, allowed values: freerun, fixed, sync_in1, none'
-    property('fps', 'int',30).
-    	doc 'frames per second'
     property('exposure', 'int',5000).
     	doc 'exposure value if exposure mode is not auto'
     property('exposure_mode', 'string','auto').
@@ -85,12 +26,6 @@ task_context 'CameraTask' do
     	doc 'horizontal binning. 1=no binning.'
     property('binning_y', 'int',1).
     	doc 'vertical binning. 1=no binning.'
-    property('output_format', 'string','rgb8').
-    	doc 'output format of the output_port frame, allowed values: bayer8, rgb8, (the received camera frame is always bayer)'
-    property('log_interval_in_sec', 'int',5).
-    	doc 'interval for logging a statistic about valid and invalid frames per second (0= logging of) -> it is saved as frame attrib StatFrameRate'
-    property('frame_buffer_size', 'int',10).
-    	doc 'size if the frame buffer'
     property('mode', 'string','Master').
     	doc 'opening mode (Master, Monitor, MasterMulticast)'
     property('synchronize_time_interval', 'int',0).
@@ -109,21 +44,17 @@ task_context 'CameraTask' do
     	doc 'External trigger event, allowed values:  EdgeRising, EdgeFalling, EdgeAny, LevelHigh, LevelLow, none'
     property('package_size', 'int',0).
     	doc 'In Bytes. Size of image data packet. This size includes the GVSP, UDP, and IP headers. (0 == max possible)'
-    property('clear_buffer_if_frame_drop', 'bool',false).
-    	doc 'if the queue is empty because retrieve was called too rarely clear buffer'
-
-#    default_activity :periodic, 0.01
 end
 
 #use deployment camera_viewer which is defined in orocos_frame_viewer if you want to test the camera task
 deployment "camera" do
-    camera_taska = task("camera_a", 'CameraTask')
-    camera_taskb = task("camera_b", 'CameraTask')
+    camera_taska = task("camera_a", 'Task')
+    camera_taskb = task("camera_b", 'Task')
     add_default_logger
     if !corba_enabled?
        browse camera_taska
     end
 end
 
-simple_deployment("left_camera", 'CameraTask')
-simple_deployment("right_camera", 'CameraTask')
+simple_deployment("left_camera", 'Task')
+simple_deployment("right_camera", 'Task')
