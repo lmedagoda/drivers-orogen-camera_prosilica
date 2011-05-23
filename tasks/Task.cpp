@@ -15,6 +15,12 @@ Task::~Task()
 {
 }
 
+Task::Task(std::string const& name,RTT::ExecutionEngine* engine) 
+    : TaskBase(name, engine)
+{
+}
+
+
 //opens the camera 
 bool Task::configureHook()
 {
@@ -35,7 +41,7 @@ bool Task::configureHook()
     else
     {
         RTT::log(RTT::Error) << "unsupported camera mode: " << _mode.value() << RTT::endlog();
-        error(UNSUPPORTED_PARAMETER);
+      //  error(UNSUPPORTED_PARAMETER);
         return false;
     }  
 
@@ -49,7 +55,7 @@ bool Task::configureHook()
     catch (std::runtime_error e)
     {
         RTT::log(RTT::Error) << "failed to initialize camera: " << e.what() << RTT::endlog();
-        error(NO_CAMERA);
+       // error(NO_CAMERA);
         return false;
     }
     

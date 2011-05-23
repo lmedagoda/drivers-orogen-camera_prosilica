@@ -13,6 +13,7 @@ namespace camera_prosilica {
         camera::AccessMode camera_access_mode;
       
     public:
+        Task(std::string const& name, RTT::ExecutionEngine* engine);
         Task(std::string const& name = "camera_prosilica::Task");
         ~Task();
 
