@@ -15,11 +15,6 @@ Task::~Task()
 {
 }
 
-Task::Task(std::string const& name,RTT::ExecutionEngine* engine) 
-    : TaskBase(name, engine)
-{
-}
-
 
 //opens the camera 
 bool Task::configureHook()
