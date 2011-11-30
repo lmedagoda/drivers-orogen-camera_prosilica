@@ -21,3 +21,4 @@ end
 
 simple_deployment("left_camera", 'Task')
 simple_deployment("right_camera", 'Task')
+simple_deployment("tool_camera", 'Task')
