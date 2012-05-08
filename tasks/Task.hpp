@@ -17,7 +17,7 @@ namespace camera_prosilica {
         Task(std::string const& name = "camera_prosilica::Task");
         ~Task();
 
-        virtual void configureCamera();
+        virtual bool configureCamera();
 
         /** This hook is called by Orocos when the state machine transitions
          * from PreOperational to Stopped. If it returns false, then the

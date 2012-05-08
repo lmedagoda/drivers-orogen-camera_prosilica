@@ -73,12 +73,13 @@ void Task::triggerFunction(const void *p)
     ((RTT::TaskContext*)p)->getActivity()->trigger();
 }
 
-void Task::configureCamera()
+bool Task::configureCamera()
 {
     //do not change camera settings if we have no control
     if(camera_access_mode == Monitor)
-        return;
-    ::camera_base::Task::configureCamera();
+        return true;
+
+    return ::camera_base::Task::configureCamera();
 }
 
 //bool Task::startHook()
