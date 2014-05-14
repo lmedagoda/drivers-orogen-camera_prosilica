@@ -7,6 +7,8 @@ import_types_from "camera_base"
 
 task_context 'Task' do
     subclasses "camera_base::Task"
+    property('camera_ip', 'string','').
+    	doc 'ip address of the camera. If given this will be used instead of the unique camera id'
 end
 
 #use deployment camera_viewer which is defined in orocos_frame_viewer if you want to test the camera task

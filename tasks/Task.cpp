@@ -49,7 +49,11 @@ bool Task::configureHook()
     {
         std::auto_ptr<camera::CamGigEProsilica> camera(new camera::CamGigEProsilica(_package_size));
         RTT::log(RTT::Info) << "open camera" << RTT::endlog();
-        camera->open2(camera_id,camera_access_mode);
+
+        if(_camera_ip.get().empty())
+            camera->open2(camera_id,camera_access_mode);
+        else
+            camera->open(_camera_ip.get(),camera_access_mode);
         cam_interface = camera.release();
     }
     catch (std::runtime_error e)
